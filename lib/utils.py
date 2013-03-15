@@ -3,6 +3,24 @@ import pyglet
 from pyglet.gl import *
 
 
+def clamp(x, low, high):
+    """Clamps a number between two numbers
+
+    Args:
+        x: the number to clamp
+        low: the minimum value the number can have
+        high: the maximum value the number can have
+    Returns:
+        the value of x clamped between low and high
+    """
+    if x < low:
+        return low
+    elif x > high:
+        return high
+    else:
+        return x
+
+
 class Vector(object):
     """Represents a vector in 2D space
 
@@ -14,7 +32,6 @@ class Vector(object):
         x: x component of the vector
         y: y component of the vector
     """
-
     def __init__(self, x, y):
         """Creates a new vector
 
@@ -147,7 +164,8 @@ class Vector(object):
 
         """
         length = self.length()
-
+        if length == 0.0:
+            return
         # Note that length is a float, so we don't need a type conversion
         # even if x and y are ints
         self.x /= length
@@ -163,6 +181,15 @@ class Vector(object):
 
         """
         return (self.x * other.x) + (self.y * other.y)
+
+    @staticmethod
+    def Zero():
+        """Gets an empty vector (0, 0)
+
+        Returns:
+            the zero vector (0, 0)
+        """
+        return Vector(0, 0)
 
 
 class Shape(object):
