@@ -1,6 +1,7 @@
 from math import sqrt
 import pyglet
 from pyglet.gl import *
+import numpy as np
 
 
 def clamp(x, low, high):
@@ -19,6 +20,65 @@ def clamp(x, low, high):
         return high
     else:
         return x
+
+
+def project(verts, axis):
+    """Projects a shape onto an axis
+
+    Args:
+        verts: the vertices defining the shape
+        axis: the axis to project the shape onto
+    Returns:
+        the projection of the shape onto the axis
+    """
+    # v_min and v_max represent the minimum and maximum
+    # values of the projection
+    # Start with the projection value for the first vertex
+    v_min = axis.dot(verts[0])
+    v_max = v_min
+
+    # Loop over the rest of the vertices and
+    # find the projection values for each
+    for i in range(1, len(verts)):
+        p = axis.dot(verts[i])
+
+        # Set the new minimum or maximum, if applicable
+        if p < v_min:
+            v_min = p
+        elif p > v_max:
+            v_max = p
+
+    return Projection(v_min, v_max)
+
+
+def generateAxes(verts):
+    """Generates a list of perpendicular axes for a shape
+
+    Args:
+        verts: the vertices making up the shape
+    Returns:
+        a list of normalized axes perpendicular to the sides
+        of the shape
+    """
+    axes = []
+
+    # Generate vectors for each pair of vertices
+    # representing the sides
+    for i in range(0, len(verts)):
+        p1 = verts[i]
+        if (i + 1 == len(verts)):
+            p2 = verts[0]
+        else:
+            p2 = verts[i + 1]
+
+        edge = p1 - p2
+
+        # Create the vector perpendicular to the side
+        # and normalize it
+        normal = Vector(edge.y, -edge.x)
+        normal.normalize()
+        axes.append(normal)
+    return axes
 
 
 class Vector(object):
@@ -191,6 +251,41 @@ class Vector(object):
         """
         return Vector(0, 0)
 
+    def toMatrix(self):
+        return np.matrix([[self.x], [self.y], [0], [1]])
+
+
+class Projection(object):
+    """Represents a 1-dimensional projection onto an axis, with
+    a minimum and maximum value to represent it
+
+    Attributes:
+        minimum: the low-value of the projection
+        maximum: the high-value of the projection
+    """
+    def __init__(self, minimum, maximum):
+        """Creates a new Projection
+
+        Args:
+            minimum: the low-value of the projection
+            maximum: the high-value of the projection
+        Returns:
+            a new Projection
+        """
+        self.minimum = minimum
+        self.maximum = maximum
+
+    def overlaps(self, other):
+        """Checks if this projection overlaps another
+
+        Args:
+            other: the other projection to check for overlap
+        Returns:
+            True if the two projections overlap, False if they do not
+        """
+        return (self.minimum <= other.maximum) and \
+               (other.minimum <= self.maximum)
+
 
 class Shape(object):
     """Represents a closed geometric shape in 2D space
@@ -206,10 +301,9 @@ class Shape(object):
         __verts: a tuple defining the vertices of the shape
         __num_verts: the number of vertices defining the shape
         __indices: the indices defining how to draw the shape
-
     """
 
-    def __init__(self, verts):
+    def __init__(self, verts, pos, rot, scale):
         """Creates a new drawable shape
 
         Args:
@@ -222,6 +316,9 @@ class Shape(object):
         self.__verts = tuple(verts)
         self.__num_verts = len(verts) // 2
         self.__indices = self.__genIndices()
+        self.pos = pos
+        self.rot = rot
+        self.scale = scale
 
     def __genIndices(self):
         """Generates the indices for the shape
@@ -247,16 +344,120 @@ class Shape(object):
 
         return indices
 
-    def draw(self, pos, rot, scale):
+    def collides(self, other):
+        """Checks if this shape collides with another
+
+        Args:
+            other: the shape to test collision against
+        Returns:
+            True if the two shapes collide, False if they do not
+        """
+        # First grab the transformed (world-space) vertices of each shape
+        # Then, grab the axes, which are normalized vectors perpendicular
+        # to each side
+        verts1 = self.__getTransformedVerts()
+        verts2 = other.__getTransformedVerts()
+        axes1 = generateAxes(verts1)
+        axes2 = generateAxes(verts2)
+
+        # Loop over each set of axes, and project both shapes onto each axis
+        # If they don't overlap on the axis, the shapes do not collide
+        for axis in axes1:
+            proj1 = project(verts1, axis)
+            proj2 = project(verts2, axis)
+
+            if not proj1.overlaps(proj2):
+                return False
+
+        for axis in axes2:
+            proj1 = project(verts1, axis)
+            proj2 = project(verts2, axis)
+
+            if not proj1.overlaps(proj2):
+                return False
+
+        # If we got this far, the shapes overlap on each axis,
+        # and the shapes collide
+        return True
+
+    def __generateVectors(self):
+        """Converts the tuple of vertex values for this shape
+        into a list of vectors
+
+        Returns:
+            a list of vectors defining the shape
+        """
+        vectors = []
+
+        # Every 2 values in the __verts list represents a vector.
+        # This for loop turns each pair of verts into vectors
+        for i in range(0, len(self.__indices), 2):
+            vectors.append(Vector(self.__verts[i], self.__verts[i + 1]))
+        return vectors
+
+    def __getModelView(self):
+        """Grabs the model view matrix based on the
+        current state of the shape.
+
+        Returns:
+            the model view matrix for this shape
+        """
+        # Use OpenGL commands to generate the model-view matrix,
+        # based on position, rotation, and scale values
+        glLoadIdentity()
+        glTranslatef(self.pos.x, self.pos.y, 0.0)
+        glRotatef(self.rot, 0, 0, 1)
+        glScalef(self.scale, self.scale, self.scale)
+
+        # Now we grab the model view matrix and store it in
+        # an array of GLfloat's
+        float_arr = (GLfloat * 16)()
+        glGetFloatv(GL_MODELVIEW_MATRIX, float_arr)
+
+        # The final step is to convert the array of floats into
+        # a NumPy matrix. We convert the values to a list to
+        # construct the matrix, and then resize it to a 4x4 matrix.
+        # We need to take the transpose to get the matrix in the
+        # correct orientation
+        mv = np.matrix(list(float_arr))
+        mv.resize((4, 4))
+        mv = mv.transpose()
+        return mv
+
+    def __getTransformedVerts(self):
+        """Gets the transformed vertices of the shape
+
+        Returns:
+            the vertices of the object, in world-space
+        """
+        # Grab the model view matrix and the non-transformed
+        # vertices of the objects as vectors
+        mv = self.__getModelView()
+        verts = self.__generateVectors()
+
+        # For each vertex, convert it to a matrix and then
+        # multiply by the model-view matrix
+        # Then, transform it back into a vector and store it in
+        # the list
+        transVerts = []
+        for vert in verts:
+            v_m = vert.toMatrix()
+            v_m = mv * v_m
+            v_t = Vector(v_m[0, 0], v_m[1, 0])
+            transVerts.append(v_t)
+
+        return transVerts
+
+    def draw(self):
         """Draws the shape onto the screen
 
         """
         # Start with the identity matrix and then load in
         # the transformation matrices
         glLoadIdentity()
-        glTranslatef(pos.x, pos.y, 0.0)
-        glRotatef(rot, 0, 0, 1)
-        glScalef(scale, scale, scale)
+        glTranslatef(self.pos.x, self.pos.y, 0.0)
+        glRotatef(self.rot, 0, 0, 1)
+        glScalef(self.scale, self.scale, self.scale)
 
         # Draw the lines that make up the shape
         # Use the 'v2f' format in case we're using vertices with floats
