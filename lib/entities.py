@@ -27,7 +27,7 @@ class Entity(object):
             movement: the movement vector by which the ship moves every frame
 
     """
-    def __init__(self, shape, pos=Vector(0, 0), rot=0.0, scale=1.0):
+    def __init__(self, verts, pos=Vector(0, 0), rot=0.0, scale=1.0):
         """Creates a new Entity
 
         Args:
@@ -41,7 +41,7 @@ class Entity(object):
             a new Entity
 
         """
-        self.__shape = shape
+        self.__shape = Shape(verts, pos, rot, scale)
         self.pos = pos
         self.__rot = rot
         self.scale = scale
@@ -56,13 +56,32 @@ class Entity(object):
         """
         # Move the ship by the movement vector
         self.pos += self.movement
+        self.__shape.pos = self.pos
+        self.__shape.rot = self.rot
+        self.__shape.scale = self.scale
 
     def draw(self):
         """Draws the entity onto the screen
 
         """
         # Defer this to the shape
-        self.__shape.draw(self.pos, self.rot, self.scale)
+        self.__shape.draw()
+
+    def collides(self, other):
+        """Checks whether this entity collides with another one
+
+        Args:
+            other: the other entity to test collision with
+        Returns:
+            True if the entities collide, False if they do not
+        """
+
+        # FOR DEBUG ONLY
+        # In the case other is a Shape
+        if isinstance(other, Shape):
+            return self.__shape.collides(other)
+
+        return self.__shape.collides(other.__shape)
 
     # Direction stored as a property to ensure normalization
     @property
@@ -109,7 +128,7 @@ class Ship(Entity):
         Returns:
             a new Ship instance
         """
-        Entity.__init__(self, Shape((30, 0, -30, 20, -30, -20)),
+        Entity.__init__(self, (30, 0, -30, 20, -30, -20),
                         pos, rot, scale)
         self.__keys = keys
 
