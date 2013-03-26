@@ -1,3 +1,7 @@
+"""
+Utility classes and functions. Anything in here handles
+the mathematical side of the game, mostly.
+"""
 from math import sqrt
 import pyglet
 from pyglet.gl import *
@@ -51,7 +55,7 @@ def project(verts, axis):
     return Projection(v_min, v_max)
 
 
-def generateAxes(verts):
+def generate_axes(verts):
     """Generates a list of perpendicular axes for a shape
 
     Args:
@@ -76,7 +80,7 @@ def generateAxes(verts):
         # Create the vector perpendicular to the side
         # and normalize it
         normal = Vector(edge.y, -edge.x)
-        normal.normalize()
+        normal = normal.normalize()
         axes.append(normal)
     return axes
 
@@ -191,7 +195,7 @@ class Vector(object):
         """
         return '(' + str(self.x) + ', ' + str(self.y) + ')'
 
-    def toTuple(self):
+    def to_tuple(self):
         """Converts the vector to a tuple representation
 
         Returns:
@@ -200,7 +204,7 @@ class Vector(object):
         """
         return (self.x, self.y)
 
-    def toList(self):
+    def to_list(self):
         """Converts the vector to a list representation
 
         Returns:
@@ -219,17 +223,22 @@ class Vector(object):
         return sqrt(self.x ** 2 + self.y ** 2)
 
     def normalize(self):
-        """Normalizes the vector, which will
-        maintain the same direction but make the length 1
+        """Returns a normalized version of this vector,
+        which maintains the same direction but has length 1
 
+        Returns:
+            a normalized vector pointing in the same direction
+            as this one
         """
         length = self.length()
         if length == 0.0:
-            return
+            return self
+
         # Note that length is a float, so we don't need a type conversion
         # even if x and y are ints
-        self.x /= length
-        self.y /= length
+        new_x = self.x / length
+        new_y = self.y / length
+        return Vector(new_x, new_y)
 
     def dot(self, other):
         """Returns the dot product of this vector and another
@@ -315,12 +324,12 @@ class Shape(object):
         """
         self.__verts = tuple(verts)
         self.__num_verts = len(verts) // 2
-        self.__indices = self.__genIndices()
+        self.__indices = self.__gen_indices()
         self.pos = pos
         self.rot = rot
         self.scale = scale
 
-    def __genIndices(self):
+    def __gen_indices(self):
         """Generates the indices for the shape
         Because the shape is closed, we want the indices to
         follow a pattern similar to [0, 1, 1, 2, 2, 0]. This
@@ -355,10 +364,10 @@ class Shape(object):
         # First grab the transformed (world-space) vertices of each shape
         # Then, grab the axes, which are normalized vectors perpendicular
         # to each side
-        verts1 = self.__getTransformedVerts()
-        verts2 = other.__getTransformedVerts()
-        axes1 = generateAxes(verts1)
-        axes2 = generateAxes(verts2)
+        verts1 = self.__get_transformed_verts()
+        verts2 = other.__get_transformed_verts()
+        axes1 = generate_axes(verts1)
+        axes2 = generate_axes(verts2)
 
         # Loop over each set of axes, and project both shapes onto each axis
         # If they don't overlap on the axis, the shapes do not collide
@@ -380,7 +389,7 @@ class Shape(object):
         # and the shapes collide
         return True
 
-    def __generateVectors(self):
+    def __gen_vectors(self):
         """Converts the tuple of vertex values for this shape
         into a list of vectors
 
@@ -395,7 +404,7 @@ class Shape(object):
             vectors.append(Vector(self.__verts[i], self.__verts[i + 1]))
         return vectors
 
-    def __getModelView(self):
+    def __get_model_view(self):
         """Grabs the model view matrix based on the
         current state of the shape.
 
@@ -424,7 +433,7 @@ class Shape(object):
         mv = mv.transpose()
         return mv
 
-    def __getTransformedVerts(self):
+    def __get_transformed_verts(self):
         """Gets the transformed vertices of the shape
 
         Returns:
@@ -432,8 +441,8 @@ class Shape(object):
         """
         # Grab the model view matrix and the non-transformed
         # vertices of the objects as vectors
-        mv = self.__getModelView()
-        verts = self.__generateVectors()
+        mv = self.__get_model_view()
+        verts = self.__gen_vectors()
 
         # For each vertex, convert it to a matrix and then
         # multiply by the model-view matrix
@@ -449,9 +458,7 @@ class Shape(object):
         return transVerts
 
     def draw(self):
-        """Draws the shape onto the screen
-
-        """
+        """Draws the shape onto the screen"""
         # Start with the identity matrix and then load in
         # the transformation matrices
         glLoadIdentity()
