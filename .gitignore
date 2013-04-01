@@ -3,3 +3,5 @@
 
 # Ignore .pyc files
 *.pyc
+/lib/*.pyc
+/lib/geometry/*.pyc
