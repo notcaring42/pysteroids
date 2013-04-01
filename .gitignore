@@ -1,2 +1,5 @@
 # Ignore sublime project stuffs
 *.sublime*
+
+# Ignore .pyc files
+*.pyc
