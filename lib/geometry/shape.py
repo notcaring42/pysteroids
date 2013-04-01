@@ -102,7 +102,7 @@ class Shape(object):
         # and the shapes collide
         return True
 
-    def get_vectors(self):
+    def __get_vectors(self):
         """Converts the tuple of vertex values for this shape
         into a list of vectors
 
@@ -155,7 +155,7 @@ class Shape(object):
         # Grab the model view matrix and the non-transformed
         # vertices of the objects as vectors
         mv = self.__get_model_view()
-        verts = self.get_vectors()
+        verts = self.__get_vectors()
 
         # For each vertex, convert it to a matrix and then
         # multiply by the model-view matrix
@@ -204,7 +204,7 @@ class Shape(object):
 
         # Now we get the properly scaled vertices and store them
         # in a list
-        verts = self.get_vectors()
+        verts = self.__get_vectors()
         transVerts = []
         for vert in verts:
             v_m = vert.toMatrix()
