@@ -2,12 +2,13 @@
 # Pysteroids - An Asteroids clone in Python
 # Max Mays
 import pyglet
+from lib.geometry.vector import Vector
 from lib.entities import Ship, Asteroid
-from lib.utils import Vector
 from pyglet.window import key
+from lib.utils import window_width, window_height
 
-window = pyglet.window.Window(caption='Pysteroids')
-
+window = pyglet.window.Window(caption='Pysteroids', width=window_width,
+                              height=window_height)
 # Get the keystate and create the ship
 keys = key.KeyStateHandler()
 window.push_handlers(keys)
@@ -15,7 +16,7 @@ ship = Ship(pos=Vector(100, 100))
 
 # Create an asteroid
 asteroid = Asteroid(Asteroid.Size.SMALL, pos=Vector(300, 300))
-asteroid.direction = Vector(-1, -1)
+asteroid.direction = Vector(1, 1)
 asteroid.lin_speed = 1
 asteroids = [asteroid]
 

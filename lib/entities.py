@@ -2,7 +2,9 @@
 The base entity class and any classes derived from it.
 Defines all the objects in the game.
 """
-from utils import Shape, Vector, clamp
+from geometry.shape import Shape
+from geometry.vector import Vector
+from utils import clamp, window_width, window_height
 from math import sin, cos, radians
 from pyglet.window import key
 from random import randrange
@@ -54,10 +56,11 @@ class Entity(object):
         self._direction = direction.normalize()
 
     def update(self, dt):
-        """Updates the ship's position
+        """Updates the entity's shape
 
         Args:
             dt: the amount of time since the last update
+            window: the game window
         """
         # Move and rotate the entity
         self.pos += self._direction * self.lin_speed
@@ -67,6 +70,9 @@ class Entity(object):
         self._shape.pos = self.pos
         self._shape.rot = self.rot
         self._shape.scale = self.scale
+
+        # Reflect across the screen, if necessary
+        self._reflect_across_screen()
 
     def draw(self):
         """Draws the entity onto the screen
@@ -84,6 +90,42 @@ class Entity(object):
             True if the entities collide, False if they do not
         """
         return self._shape.collides(other._shape)
+
+    def _reflect_across_screen(self):
+        """Checks if the entity needs to be reflected across the
+        screen and generates a new position if it does
+        """
+        # Start with the current position
+        new_pos = Vector(self.pos.x, self.pos.y)
+
+        # For each side of the screen, check if the entity has
+        # exceeded the bounds using the approximate length
+
+        # Check horizontal
+        # Left-side
+        if (self.pos.x + self._shape.effective_length < 0):
+            dist = abs(0 - (self.pos.x + self._shape.effective_length))
+            new_pos.x = window_width + dist
+        # Right-side
+        elif (self.pos.x - self._shape.effective_length > window_width):
+            dist = abs((self.pos.x - self._shape.effective_length) -
+                       window_width)
+            new_pos.x = -dist
+
+        # Check vertical
+        # Bottom
+        if (self.pos.y + self._shape.effective_length < 0):
+            dist = abs(0 - (self.pos.y + self._shape.effective_length0))
+            new_pos.y = window_height + dist
+        # Top
+        elif (self.pos.y - self._shape.effective_length > window_height):
+            dist = abs((self.pos.y - self._shape.effective_length) -
+                       window_height)
+            new_pos.y = -dist
+
+        # Set the new position of the entity.
+        # If no reflection was needed, it's just the original position
+        self.pos = new_pos
 
     # Direction stored as a property to ensure normalization
     @property
@@ -177,6 +219,9 @@ class Ship(Entity):
         self._shape.pos = self.pos
         self._shape.rot = self.rot
         self._shape.scale = self.scale
+
+        # Reflect across the screen, if necessary
+        self._reflect_across_screen()
 
     # Direction stored as a property to ensure normalization
     @property
