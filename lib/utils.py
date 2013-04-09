@@ -1,5 +1,5 @@
 """
-General utility functions and vectors
+General utility functions and classes
 """
 window_width = 640
 window_height = 480

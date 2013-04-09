@@ -6,8 +6,8 @@ Pysteroids
 All of the graphics are done via OpenGL calls exposed by Pyglet,
 no images are used. I wanted to capture the 'retro' feel of playing
 Asteroids on Atari or Intellivision or whatever, as well as practice
-applying some mathematics to programming (for collision and convex
-decomposition mostly)  
+applying some mathematics to programming (mostly in the form of linear
+algebra and the separating axis theorem)
 
 Most of the code is written by me, but I might've adapted some sample code
 for collision and such, because math is really hard.

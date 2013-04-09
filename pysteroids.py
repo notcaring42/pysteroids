@@ -15,7 +15,7 @@ window.push_handlers(keys)
 ship = Ship(pos=Vector(100, 100))
 
 # Create an asteroid
-asteroid = Asteroid(Asteroid.Size.SMALL, pos=Vector(300, 300))
+asteroid = Asteroid(Asteroid.Size.SMALL, pos=Vector(300, 300), shape_index=0)
 asteroid.direction = Vector(1, 1)
 asteroid.lin_speed = 1
 asteroids = [asteroid]

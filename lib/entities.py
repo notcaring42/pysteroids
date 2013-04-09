@@ -67,9 +67,7 @@ class Entity(object):
         self.rot += self.rot_speed
 
         # Set new values
-        self._shape.pos = self.pos
-        self._shape.rot = self.rot
-        self._shape.scale = self.scale
+        self._shape.update(self.pos, self.rot, self.scale)
 
         # Reflect across the screen, if necessary
         self._reflect_across_screen()
@@ -286,8 +284,8 @@ class Asteroid(Entity):
 
             # The last entry of each line is the default scale
             # (scale for a medium-sized asteroid with this shape)
-            # Each entry in shapes is a tuple with entry-0 being
-            # a tuple of the vertices of the shape, and entry-1 being
+            # Each entry in shapes is a tuple with entry 0 being
+            # a tuple of the vertices of the shape, entry 1 being
             # the default scale
             shapes.append((tuple(verts[0:-1]), verts[-1]))
 
@@ -342,7 +340,8 @@ class Asteroid(Entity):
             scale_factor = 1.5
 
         Entity.__init__(self, self.__shape, Vector(0, 0),
-                        pos=pos, rot=rot, scale=self.__def_scale * scale_factor)
+                        pos=pos, rot=rot,
+                        scale=self.__def_scale * scale_factor)
 
     def destroy(self):
         """Destroys an asteroid and breaks it into pieces

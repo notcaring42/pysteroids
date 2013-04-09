@@ -40,7 +40,6 @@ class Shape(object):
         self.rot = rot
         self.scale = scale
         self.effective_length = self.__get_effective_length()
-        print self.effective_length
 
     def __gen_indices(self):
         """Generates the indices for the shape
@@ -218,6 +217,11 @@ class Shape(object):
         # We also give it a little padding so the transition isn't so
         # sudden
         return 20 + max([vert.length() for vert in transVerts])
+
+    def update(self, pos, rot, scale):
+        self.pos = pos
+        self.rot = rot
+        self.scale = scale
 
     def draw(self):
         """Draws the shape onto the screen"""
