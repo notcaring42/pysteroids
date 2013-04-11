@@ -1,8 +1,8 @@
 """
 General utility functions and classes
 """
-window_width = 640
-window_height = 480
+WINDOW_WIDTH = 640
+WINDOW_HEIGHT = 480
 
 
 def clamp(x, low, high):
@@ -21,3 +21,18 @@ def clamp(x, low, high):
         return high
     else:
         return x
+
+
+def wrap_angle(x):
+    """Wraps an angle between 0 and 360 degrees
+
+    Args:
+        x: the angle to wrap
+    Returns:
+        a new angle on the interval [0, 360]
+    """
+    if x < 0:
+        x = 360 - x
+    elif x > 360:
+        x = x - 360
+    return x

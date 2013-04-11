@@ -4,7 +4,7 @@ Defines all the objects in the game.
 """
 from geometry.shape import Shape
 from geometry.vector import Vector
-from utils import clamp, window_width, window_height
+from utils import clamp, WINDOW_WIDTH, WINDOW_HEIGHT, wrap_angle
 from math import sin, cos, radians
 from pyglet.window import key
 from random import randrange
@@ -65,7 +65,8 @@ class Entity(object):
         # Move and rotate the entity
         self.pos += self._direction * self.lin_speed
         self.rot += self.rot_speed
-
+        self.rot = wrap_angle(self.rot)
+        print self.rot
         # Set new values
         self._shape.update(self.pos, self.rot, self.scale)
 
@@ -103,22 +104,22 @@ class Entity(object):
         # Left-side
         if (self.pos.x + self._shape.effective_length < 0):
             dist = abs(0 - (self.pos.x + self._shape.effective_length))
-            new_pos.x = window_width + dist
+            new_pos.x = WINDOW_WIDTH + dist
         # Right-side
-        elif (self.pos.x - self._shape.effective_length > window_width):
+        elif (self.pos.x - self._shape.effective_length > WINDOW_WIDTH):
             dist = abs((self.pos.x - self._shape.effective_length) -
-                       window_width)
+                       WINDOW_WIDTH)
             new_pos.x = -dist
 
         # Check vertical
         # Bottom
         if (self.pos.y + self._shape.effective_length < 0):
             dist = abs(0 - (self.pos.y + self._shape.effective_length0))
-            new_pos.y = window_height + dist
+            new_pos.y = WINDOW_HEIGHT + dist
         # Top
-        elif (self.pos.y - self._shape.effective_length > window_height):
+        elif (self.pos.y - self._shape.effective_length > WINDOW_HEIGHT):
             dist = abs((self.pos.y - self._shape.effective_length) -
-                       window_height)
+                       WINDOW_HEIGHT)
             new_pos.y = -dist
 
         # Set the new position of the entity.
@@ -291,8 +292,8 @@ class Asteroid(Entity):
 
         cls.__shapes = shapes
 
-    def __init__(self, size, shape_index=None,
-                 pos=Vector(0, 0), rot=0.0):
+    def __init__(self, size, direction, lin_speed, rot_speed,
+                 shape_index=None, pos=Vector(0, 0), rot=0.0):
         """Creates a new Asteroid
 
         Args:
@@ -339,8 +340,8 @@ class Asteroid(Entity):
         elif size == Asteroid.Size.HUGE:
             scale_factor = 1.5
 
-        Entity.__init__(self, self.__shape, Vector(0, 0),
-                        pos=pos, rot=rot,
+        Entity.__init__(self, self.__shape, direction, lin_speed=lin_speed,
+                        rot_speed=rot_speed, pos=pos, rot=rot,
                         scale=self.__def_scale * scale_factor)
 
     def destroy(self):
