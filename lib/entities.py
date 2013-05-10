@@ -2,12 +2,15 @@
 The base entity class and any classes derived from it.
 Defines all the objects in the game.
 """
+from math import sin, cos, radians
+import random as rand
+
+from pyglet.window import key
+
 from geometry.shape import Shape
 from geometry.vector import Vector
-from utils import clamp, WINDOW_WIDTH, WINDOW_HEIGHT, wrap_angle
-from math import sin, cos, radians
-from pyglet.window import key
-from random import randrange
+from utils import clamp, WINDOW_WIDTH, WINDOW_HEIGHT, \
+    wrap_angle, rand_direction
 
 
 class Entity(object):
@@ -15,11 +18,11 @@ class Entity(object):
        game (such as a ship, asteroid, etc.)
 
        The Entity class is a base class for all the objects in
-       the game, including the player, the asteroids, and anything else.
-       It is defined graphically by a shape. The class also stores the
-       current position, rotation, and scale of the objects which are
-       used when it is drawn to the screen, as well as a direction vector
-       which defines where the entity is pointing.
+       the game, including the player, the asteroids, and anything
+       else. It is defined graphically by a shape. The class also
+       stores the current position, rotation, and scale of the objects
+       which are used when it is drawn to the screen, as well as a
+       direction vector which defines where the entity is pointing.
 
        Attributes:
             _shape: the shape graphically defining the entity
@@ -66,7 +69,7 @@ class Entity(object):
         self.pos += self._direction * self.lin_speed
         self.rot += self.rot_speed
         self.rot = wrap_angle(self.rot)
-        print self.rot
+
         # Set new values
         self._shape.update(self.pos, self.rot, self.scale)
 
@@ -114,7 +117,7 @@ class Entity(object):
         # Check vertical
         # Bottom
         if (self.pos.y + self._shape.effective_length < 0):
-            dist = abs(0 - (self.pos.y + self._shape.effective_length0))
+            dist = abs(0 - (self.pos.y + self._shape.effective_length))
             new_pos.y = WINDOW_HEIGHT + dist
         # Top
         elif (self.pos.y - self._shape.effective_length > WINDOW_HEIGHT):
@@ -143,12 +146,14 @@ class Ship(Entity):
     input handling.
 
     Attributes:
-        __max_speed: the maximum units per update that the ship can travel
+        __max_speed: the maximum units per update that the ship can
+                     travel
         __movement: the movement vector that the ship is translated by
                     each frame
     """
 
     __max_speed = 1.5
+    __shoot_delay = 0.4
 
     def __init__(self, pos=Vector(0, 0), rot=0.0):
         """Creates a new Ship
@@ -165,10 +170,15 @@ class Ship(Entity):
         direction = Vector(cos(radians(rot)), sin(radians(rot)))
 
         # Initially, the ship isn't moving
-        self.__movement = Vector.Zero()
+        self.__movement = Vector.zero()
 
-        Entity.__init__(self, (30, 0, -30, 20, -30, -20), direction,
-                        1.0, 1.0, pos, rot, 0.5)
+        # Initialize bullet list
+        self.bullets = []
+        self.__last_shoot = self.__shoot_delay
+
+        Entity.__init__(self, (20, 0, -30, 20, -30, -20), direction,
+                        lin_speed=1.0, rot_speed=1.8, pos=pos, rot=rot,
+                        scale=0.5)
 
     def __handle_input(self, keys, dt):
         """Handles any input from the player.
@@ -182,10 +192,11 @@ class Ship(Entity):
         #
         # Moving works like this: each frame the ship is translated
         # by the movement vector. When the ship moves forward, a scalar
-        # multiple of the direction vector is added to the movement vector
-        # This simulates zero-gravity movement for the ship: even if
-        # the player is facing a different direction, the movement
-        # still continues in the same direction until thrusters are engaged
+        # multiple of the direction vector is added to the movement
+        # vector. This simulates zero-gravity movement for the ship:
+        # even if the player is facing a different direction, the
+        # movement still continues in the same direction until
+        # thrusters are engaged
         if keys[key.W]:
             self.__movement += self._direction * self.lin_speed * dt
 
@@ -202,6 +213,16 @@ class Ship(Entity):
             self.rot += self.rot_speed
         elif keys[key.D]:
             self.rot -= self.rot_speed
+
+        # Shoot a bullet, but check to make sure that the time
+        # since the last shot is greater than the delay
+        if keys[key.SPACE] and (self.__last_shoot >= self.__shoot_delay):
+            bullet_pos = self.pos + 3*self.direction
+            self.bullets.append(Bullet(bullet_pos, self.rot,
+                                         self.direction))
+            self.__last_shoot = 0
+        else:
+            self.__last_shoot += dt
 
     def update(self, keys, dt):
         """Updates the ship and handles input
@@ -221,6 +242,18 @@ class Ship(Entity):
 
         # Reflect across the screen, if necessary
         self._reflect_across_screen()
+
+        # Update each bullet, and remove if necessary
+        for bullet in self.bullets:
+            bullet.update(dt)
+
+            if bullet.expired is True:
+                self.bullets.remove(bullet)
+
+    def draw(self):
+        Entity.draw(self)
+        for bullet in self.bullets:
+            bullet.draw()
 
     # Direction stored as a property to ensure normalization
     @property
@@ -252,7 +285,8 @@ class Asteroid(Entity):
         __shapes: a list of tuples with two elements,
                   element 0 is a tuple of vertices defining a shape
                   element 1 is the default scale of that shape
-                  (the scale for a medium-sized asteroid with that shape)
+                  (the scale for a medium-sized asteroid with that
+                  shape)
     """
     class Size:
         """Defines the possible asteroid sizes"""
@@ -262,6 +296,9 @@ class Asteroid(Entity):
         HUGE = 3    # Breaks into 3 mediums
 
     __shapes = None
+    __max_lin_speed = 2.5
+    __max_rot_speed = 2.5
+    __min_lin_speed = 0.5
 
     @classmethod
     def __get_shapes(cls):
@@ -313,12 +350,13 @@ class Asteroid(Entity):
             self.__get_shapes()
 
         # Two cases:
-        # 1. a shape index wasn't supplied, generate a random one (this is
-        # for newly generated asteroids)
-        # 2. a shape index was supplied, use that (this is for asteroids which
-        # resulted from the destruction of a larger one)
+        # 1. a shape index wasn't supplied, generate a random one
+        # (this is for newly generated asteroids)
+        # 2. a shape index was supplied, use that (this is for
+        # asteroids which resulted from the destruction of a larger
+        # one)
         if shape_index is None:
-            self.shape_index = randrange(0, len(Asteroid.__shapes))
+            self.shape_index = rand.randrange(0, len(Asteroid.__shapes))
         else:
             self.shape_index = shape_index
 
@@ -355,20 +393,44 @@ class Asteroid(Entity):
         # From the definitions given in Asteroid.Size
         if self.size == Asteroid.Size.SMALL:
             return []
-        elif self.size == Asteroid.Size.MEDIUM:
-            return [Asteroid(Asteroid.Size.SMALL, pos=self.pos,
-                             shape_index=self.shape_index),
-                    Asteroid(Asteroid.Size.SMALL, pos=self.pos,
-                             shape_index=self.shape_index)]
+
+        # Continued defs
+        if self.size == Asteroid.Size.MEDIUM:
+            return [self.__get_random_asteroid(Asteroid.Size.SMALL),
+                    self.__get_random_asteroid(Asteroid.Size.SMALL)]
         elif self.size == Asteroid.Size.LARGE:
-            return [Asteroid(Asteroid.Size.MEDIUM, pos=self.pos,
-                             shape_index=self.shape_index),
-                    Asteroid(Asteroid.Size.MEDIUM, pos=self.pos,
-                             shape_index=self.shape_index)]
+            return [self.__get_random_asteroid(Asteroid.Size.MEDIUM),
+                    self.__get_random_asteroid(Asteroid.Size.MEDIUM)]
         elif self.size == Asteroid.Size.HUGE:
-            return [Asteroid(Asteroid.Size.MEDIUM, pos=self.pos,
-                             shape_index=self.shape_index),
-                    Asteroid(Asteroid.Size.MEDIUM, pos=self.pos,
-                             shape_index=self.shape_index),
-                    Asteroid(Asteroid.Size.MEDIUM, pos=self.pos,
-                             shape_index=self.shape_index)]
+            return [self.__get_random_asteroid(Asteroid.Size.MEDIUM),
+                    self.__get_random_asteroid(Asteroid.Size.MEDIUM),
+                    self.__get_random_asteroid(Asteroid.Size.MEDIUM)]
+
+    def __get_random_asteroid(self, size):
+        # Generate random speeds
+        lin_speed = rand.uniform(self.__min_lin_speed, self.__max_lin_speed)
+        rot_speed = rand.uniform(0, self.__max_rot_speed)
+
+        # Get random direction
+        direction = rand_direction(self.pos)
+
+        return Asteroid(size, direction, lin_speed, rot_speed, pos=self.pos,
+                        shape_index=self.shape_index)
+
+
+class Bullet(Entity):
+    __max_lifespan = 3
+
+    def __init__(self, pos, rot, direction):
+        self.expired = False
+        self.__current_lifespan = 0
+
+        Entity.__init__(self, (10, 10, 10, -10, -10, -10, -10, 10),
+                        direction, pos=pos, rot=rot, lin_speed=3.0,
+                        scale=0.25)
+
+    def update(self, dt):
+        Entity.update(self, dt)
+        self.__current_lifespan += dt
+        if self.__current_lifespan >= self.__max_lifespan:
+            self.expired = True
