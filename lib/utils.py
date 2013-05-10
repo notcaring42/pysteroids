@@ -1,6 +1,10 @@
 """
 General utility functions and classes
 """
+from random import randrange
+
+from geometry.vector import Vector
+
 WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
 
@@ -36,3 +40,13 @@ def wrap_angle(x):
     elif x > 360:
         x = x - 360
     return x
+
+
+def rand_point():
+    rand_x = randrange(0, WINDOW_WIDTH)
+    rand_y = randrange(0, WINDOW_HEIGHT)
+    return Vector(rand_x, rand_y)
+
+
+def rand_direction(pos):
+    return (rand_point() - pos).normalize()
