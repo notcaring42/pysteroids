@@ -3,7 +3,9 @@ Defines the shape class, which is used to represent the geometric
 shape of an entity
 """
 from pyglet.gl import *
+import pyglet
 import numpy as np
+
 from vector import Vector, generate_axes, project
 
 
@@ -52,16 +54,13 @@ class Shape(object):
 
         # Generate the indices based on a pattern like
         # [0, 1, 1, 2, 2, 3, 3, 0]:
-        # For i = 0 we just add 0 to start, and from there just append
-        # two instances of i
-        # For the last index, we also append an extra 0 to close the shape
-        for i in range(0, self.__num_verts):
-            if i == 0:
-                indices.append(0)
-            elif i == self.__num_verts - 1:
-                indices.extend([i, i, 0])
-            else:
-                indices.extend([i, i])
+        # Add 0 to start, append two instances of i until
+        # we hit num_verts, then end with another 0 to close
+        # the shape
+        indices.append(0)
+        for i in range(1, self.__num_verts):
+            indices.extend([i, i])
+        indices.append(0)
 
         return indices
 
@@ -73,16 +72,17 @@ class Shape(object):
         Returns:
             True if the two shapes collide, False if they do not
         """
-        # First grab the transformed (world-space) vertices of each shape
-        # Then, grab the axes, which are normalized vectors perpendicular
-        # to each side
+        # First grab the transformed (world-space) vertices of each
+        # shape. Then, grab the axes, which are normalized vectors
+        # perpendicular to each side
         verts1 = self.__get_transformed_verts()
         verts2 = other.__get_transformed_verts()
         axes1 = generate_axes(verts1)
         axes2 = generate_axes(verts2)
 
-        # Loop over each set of axes, and project both shapes onto each axis
-        # If they don't overlap on the axis, the shapes do not collide
+        # Loop over each set of axes, and project both shapes onto
+        # each axis. If they don't overlap on the axis, the shapes do
+        # not collide
         for axis in axes1:
             proj1 = project(verts1, axis)
             proj2 = project(verts2, axis)

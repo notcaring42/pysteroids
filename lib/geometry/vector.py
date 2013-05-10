@@ -2,8 +2,9 @@
 Classes and functions for manipulating vectors and
 projections
 """
-import numpy as np
 from math import sqrt
+
+import numpy as np
 
 
 def project(verts, axis):
@@ -204,7 +205,7 @@ class Vector(object):
             the length of the vector
 
         """
-        return sqrt(self.x ** 2 + self.y ** 2)
+        return sqrt(self.x**2 + self.y**2)
 
     def normalize(self):
         """Returns a normalized version of this vector,
@@ -218,8 +219,8 @@ class Vector(object):
         if length == 0.0:
             return self
 
-        # Note that length is a float, so we don't need a type conversion
-        # even if x and y are ints
+        # Note that length is a float, so we don't need a type
+        # conversion even if x and y are ints
         new_x = self.x / length
         new_y = self.y / length
         return Vector(new_x, new_y)
@@ -233,10 +234,10 @@ class Vector(object):
             the dot product of the two vectors
 
         """
-        return (self.x * other.x) + (self.y * other.y)
+        return (self.x*other.x) + (self.y*other.y)
 
     @staticmethod
-    def Zero():
+    def zero():
         """Gets an empty vector (0, 0)
 
         Returns:
