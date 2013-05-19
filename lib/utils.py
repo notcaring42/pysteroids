@@ -1,7 +1,5 @@
-"""
-General utility functions and classes
-"""
-from random import randrange
+"""General utility functions and classes"""
+import random as rand
 
 from geometry.vector import Vector
 
@@ -43,10 +41,54 @@ def wrap_angle(x):
 
 
 def rand_point():
-    rand_x = randrange(0, WINDOW_WIDTH)
-    rand_y = randrange(0, WINDOW_HEIGHT)
+    """Grabs a random point in the window
+
+    Returns:
+        a Vector representing the point that was chosen
+    """
+    rand_x = rand.randrange(0, WINDOW_WIDTH)
+    rand_y = rand.randrange(0, WINDOW_HEIGHT)
     return Vector(rand_x, rand_y)
 
 
 def rand_direction(pos):
+    """Gets a random direction on the screen, relative to a given point
+
+    Parameters:
+        pos: the point from which the direction will be generated
+
+    Returns:
+        a normalized Vector representing a direction
+    """
     return (rand_point() - pos).normalize()
+
+
+def weighted_choice(choices):
+    """Makes a random choice from a list, using weights to determine
+    the probability of a certain choice being picked.
+
+    Parameters:
+        choices: a list of tuples, with the first entry being the
+            choice, and the second entry being the weight of that
+            choice
+
+    Returns:
+        a random choice from the list
+    """
+    # Grab the total of all the weights, and take a random number
+    # between 0 and the total
+    total = sum(weight for c, weight in choices)
+    r = rand.uniform(0, total)
+
+    # Iterate through the list, adding the weight to a variable called
+    # 'upto'. If the number we're 'upto' plus the weight we're on
+    # exceeds r, then choose that element. Otherwise, add the weight
+    # to 'upto'
+    upto = 0
+    for choice, weight in choices:
+        if upto + weight > r:
+            return choice
+        upto += weight
+
+    # In case something goes wrong
+    assert False, 'Nothing was chosen'

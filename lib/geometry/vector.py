@@ -7,6 +7,18 @@ from math import sqrt
 import numpy as np
 
 
+def distance(v1, v2):
+    """Gets the distance between two vectors
+
+    Parameters:
+        v1, v2: vectors
+
+    Returns:
+        the distance between v1 and v2
+    """
+    return sqrt((v2.x - v1.x)**2 + (v2.y - v1.y)**2)
+
+
 def project(verts, axis):
     """Projects a shape onto an axis
 
@@ -246,6 +258,13 @@ class Vector(object):
         return Vector(0, 0)
 
     def toMatrix(self):
+        """Returns this vector represented as a numpy matrix
+
+        Returns:
+            a numpy matrix representing this vector, with
+            a zeroed out z-component and an extra component
+            to represent as a homogeneous coordinate
+        """
         return np.matrix([[self.x], [self.y], [0], [1]])
 
 

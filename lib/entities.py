@@ -1,5 +1,4 @@
-"""
-The base entity class and any classes derived from it.
+"""The base entity class and any classes derived from it.
 Defines all the objects in the game.
 """
 from math import sin, cos, radians
@@ -287,6 +286,10 @@ class Asteroid(Entity):
                   element 1 is the default scale of that shape
                   (the scale for a medium-sized asteroid with that
                   shape)
+        max_lin_speed: the maximum linear speed an asteroid can have
+        min_lin_speed: the minimum linear speed an asteroid can have
+        max_rot_speed: the maximum rotational speed an asteroid
+            can have
     """
     class Size:
         """Defines the possible asteroid sizes"""
@@ -296,9 +299,9 @@ class Asteroid(Entity):
         HUGE = 3    # Breaks into 3 mediums
 
     __shapes = None
-    __max_lin_speed = 2.5
-    __max_rot_speed = 2.5
-    __min_lin_speed = 0.5
+    max_lin_speed = 1.5
+    max_rot_speed = 2.5
+    min_lin_speed = 0.5
 
     @classmethod
     def __get_shapes(cls):
@@ -390,12 +393,11 @@ class Asteroid(Entity):
             a list containing the asteroids resulting from
             the destruction of this one
         """
-        # From the definitions given in Asteroid.Size
+        # Depending on the size of the asteroid, create
+        # new asteroids resulting from its destruction
         if self.size == Asteroid.Size.SMALL:
             return []
-
-        # Continued defs
-        if self.size == Asteroid.Size.MEDIUM:
+        elif self.size == Asteroid.Size.MEDIUM:
             return [self.__get_random_asteroid(Asteroid.Size.SMALL),
                     self.__get_random_asteroid(Asteroid.Size.SMALL)]
         elif self.size == Asteroid.Size.LARGE:
@@ -407,9 +409,18 @@ class Asteroid(Entity):
                     self.__get_random_asteroid(Asteroid.Size.MEDIUM)]
 
     def __get_random_asteroid(self, size):
+        """Creates a random asteroid that results from the destruction
+        of this asteroid
+
+        Parameters:
+            size: the size that the new asteroid will have
+        Returns:
+            a new random asteroid, based on the characteristcs of
+            this asteroid
+        """
         # Generate random speeds
-        lin_speed = rand.uniform(self.__min_lin_speed, self.__max_lin_speed)
-        rot_speed = rand.uniform(0, self.__max_rot_speed)
+        lin_speed = rand.uniform(self.min_lin_speed, self.max_lin_speed)
+        rot_speed = rand.uniform(0, self.max_rot_speed)
 
         # Get random direction
         direction = rand_direction(self.pos)
@@ -419,9 +430,29 @@ class Asteroid(Entity):
 
 
 class Bullet(Entity):
-    __max_lifespan = 3
+    """A bullet that is shot by the player and can destroy an asteroid
+
+    Attributes:
+        __lifespan: the amount of time, in seconds, that a bullet lasts
+            before it is destroyed
+        __current_lifespan: the current amount of time the bullet has
+            existed on the screen
+        expired: a boolean value representing whether the bullet's
+            current amount of time in play has exceeded the lifespan
+    """
+    __lifespan = 3
 
     def __init__(self, pos, rot, direction):
+        """Creates a new bullet
+
+        Parameters:
+            pos: the position of the bullet
+            rot: the rotation of the bullet, in degrees
+            direction: the direction of the bullet's movement
+
+        Returns:
+            a new Bullet
+        """
         self.expired = False
         self.__current_lifespan = 0
 
@@ -430,7 +461,18 @@ class Bullet(Entity):
                         scale=0.25)
 
     def update(self, dt):
+        """Updates this bullet's parameters, and checks
+        the current lifespan of the bullet
+
+        Parameters:
+            dt: the time since the last update
+        """
+        # Update all of the Entity values
         Entity.update(self, dt)
+
+        # Add the amount of time that has passed to the current
+        # lifespan. If the current lifespan has exceeded the lifespan
+        # of a bullet, flag the bullet has expired.
         self.__current_lifespan += dt
-        if self.__current_lifespan >= self.__max_lifespan:
+        if self.__current_lifespan >= self.__lifespan:
             self.expired = True

@@ -2,11 +2,13 @@
 Defines the shape class, which is used to represent the geometric
 shape of an entity
 """
+import math
+
 from pyglet.gl import *
 import pyglet
 import numpy as np
 
-from vector import Vector, generate_axes, project
+from vector import Vector, generate_axes, project, distance
 
 
 class Shape(object):
@@ -72,6 +74,18 @@ class Shape(object):
         Returns:
             True if the two shapes collide, False if they do not
         """
+        # Start with a bounding circle test, using the effective
+        # lengths as radii for the circles. If we don't at least
+        # pass this, then the shapes don't collide, and we skip
+        # doing the more computationally expensive collision test
+        if distance(self.pos, other.pos) > (self.effective_length +
+                                            other.effective_length):
+            return False
+
+        # We passed the bounding circle test, so we now need to do the
+        # more accurate test for collision, using the separating axis
+        # theorem
+
         # First grab the transformed (world-space) vertices of each
         # shape. Then, grab the axes, which are normalized vectors
         # perpendicular to each side
@@ -123,26 +137,28 @@ class Shape(object):
         Returns:
             the model view matrix for this shape
         """
-        # Use OpenGL commands to generate the model-view matrix,
-        # based on position, rotation, and scale values
-        glLoadIdentity()
-        glTranslatef(self.pos.x, self.pos.y, 0.0)
-        glRotatef(self.rot, 0, 0, 1)
-        glScalef(self.scale, self.scale, self.scale)
+        # Create the transformation matrices (scale, rotate, and
+        # translate)
+        scale = np.matrix([[self.scale, 0, 0, 0],
+                           [0, self.scale, 0, 0],
+                           [0, 0, 1, 0],
+                           [0, 0, 0, 1]])
 
-        # Now we grab the model view matrix and store it in
-        # an array of GLfloat's
-        float_arr = (GLfloat * 16)()
-        glGetFloatv(GL_MODELVIEW_MATRIX, float_arr)
+        # We need the rotation in radians when using the cos/sin
+        # functions
+        theta = math.radians(self.rot)
+        rot = np.matrix([[math.cos(theta), -math.sin(theta), 0, 0],
+                         [math.sin(theta), math.cos(theta), 0, 0],
+                         [0, 0, 1, 0],
+                         [0, 0, 0, 1]])
 
-        # The final step is to convert the array of floats into
-        # a NumPy matrix. We convert the values to a list to
-        # construct the matrix, and then resize it to a 4x4 matrix.
-        # We need to take the transpose to get the matrix in the
-        # correct orientation
-        mv = np.matrix(list(float_arr))
-        mv.resize((4, 4))
-        mv = mv.transpose()
+        translate = np.matrix([[1, 0, 0, self.pos.x],
+                               [0, 1, 0, self.pos.y],
+                               [0, 0, 1, 0],
+                               [0, 0, 0, 1]])
+
+        # Multiply out the matrices to get the model-view matrix
+        mv = translate * rot * scale
         return mv
 
     def __get_transformed_verts(self):
@@ -162,10 +178,10 @@ class Shape(object):
         # the list
         transVerts = []
         for vert in verts:
-            v_m = vert.toMatrix()
-            v_m = mv * v_m
-            v_t = Vector(v_m[0, 0], v_m[1, 0])
-            transVerts.append(v_t)
+            vert_m = vert.toMatrix()
+            vert_t = mv * vert_m
+            vec_t = Vector(vert_t[0, 0], vert_t[1, 0])
+            transVerts.append(vec_t)
 
         return transVerts
 
@@ -178,38 +194,21 @@ class Shape(object):
         Returns:
             the effective length of the shape
         """
-        # First we need to load up the model view matrix.
-        # We only care about the shape in reference to the origin,
-        # and rotation won't be considered, so the position and
-        # rotation values aren't applied.
-        # However, we do need the scale value to get a somewhat
-        # accurate approximation
-        glLoadIdentity()
-        glScalef(self.scale, self.scale, self.scale)
-
-        # Now we grab the model view matrix and store it in
-        # an array of GLfloat's
-        float_arr = (GLfloat * 16)()
-        glGetFloatv(GL_MODELVIEW_MATRIX, float_arr)
-
-        # The final step is to convert the array of floats into
-        # a NumPy matrix. We convert the values to a list to
-        # construct the matrix, and then resize it to a 4x4 matrix.
-        # We need to take the transpose to get the matrix in the
-        # correct orientation
-        mv = np.matrix(list(float_arr))
-        mv.resize((4, 4))
-        mv = mv.transpose()
+        # The only transformation we need to consider is scale
+        mv = np.matrix([[self.scale, 0, 0, 0],
+                        [0, self.scale, 0, 0],
+                        [0, 0, 1, 0],
+                        [0, 0, 0, 1]])
 
         # Now we get the properly scaled vertices and store them
         # in a list
         verts = self.__get_vectors()
         transVerts = []
         for vert in verts:
-            v_m = vert.toMatrix()
-            v_m = mv * v_m
-            v_t = Vector(v_m[0, 0], v_m[1, 0])
-            transVerts.append(v_t)
+            vert_m = vert.toMatrix()
+            vert_t = mv * vert_m
+            vec_t = Vector(vert_t[0, 0], vert_t[1, 0])
+            transVerts.append(vec_t)
 
         # The distance of each vertex from the origin is just
         # the length of the vector defining it. We find the longest
