@@ -8,7 +8,7 @@ from pyglet.gl import glLoadIdentity
 from lib.geometry.vector import Vector
 from lib.entities import Ship
 from lib.utils import WINDOW_WIDTH, WINDOW_HEIGHT
-from lib.game_rules import GameRules, AsteroidManager
+from lib.game_rules import AsteroidManager
 
 
 class Pysteroids(object):
