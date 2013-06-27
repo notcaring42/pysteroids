@@ -1,4 +1,5 @@
 """Contains classes for managing game rules"""
+import sys
 import random as rand
 
 from lib.entities import Asteroid
@@ -13,25 +14,67 @@ class AsteroidManager(object):
     Attributes:
         asteroids: list of currently active asteroids
         asteroid_count: the number of GENERATED asteroids in play
-        game_rules: the currently active game rules used to generate
+        curr_level: the currently active game rules used to generate
             asteroids
+        all_levels: the master list of all game rules
+        curr_level_num: the current level the player is on
         next_gen_time: the time until the next asteroid will be
             generated
         last_gen_time: the time since the last asteroid was generated
     """
-    def __init__(self, game_rules):
+    def __init__(self):
         """Creates a new AsteroidManager
 
-        Parameters:
-            game_rules: the game rules to use for generating asteroids
         Returns:
             a new AsteroidManager
         """
         self.asteroids = []
         self.asteroid_count = 0
-        self.game_rules = game_rules
+        self.all_levels = self.__parse_levels()
+        self.curr_level = self.all_levels.pop()
+        self.curr_level_num = 1
         self.next_gen_time = 0
         self.last_gen_time = 0
+
+    def __parse_levels(self):
+        """Parses the game levels from levels.txt
+
+        Returns:
+            a list of game rules
+        """
+        all_levels = []
+
+        try:
+            rules_file = open('res/levels.txt', 'r')
+        except IOError:
+            # The levels file doesn't exist!
+            sys.exit('ERROR: Levels file (res/levels.txt) not found!')
+
+        for line in rules_file:
+            # Make an array out of the line entries
+            entries = line.split(' ')
+
+            try:
+                # Transform each entry into an int, and create a Level
+                # using them
+                entries = [int(i) for i in entries]
+                parsed_rules = Level(entries[0], entries[1], entries[2],
+                                     entries[3], entries[4], entries[5],
+                                     entries[6])
+            except IndexError, ValueError:
+                # There weren't enough entries, or the entries are not
+                # numbers
+                sys.exit("""ERROR: levels.txt corrupt! Are all the entries
+                    numbers, and are there a correct amount (7) per line?""")
+
+            all_levels.append(parsed_rules)
+
+        # We're going to pop each Level off one by one, so we need to
+        # reverse the list so that earlier levels are at the end of the
+        # list
+        all_levels.reverse()
+
+        return all_levels
 
     def __gen_asteroid(self):
         """Generates a new asteroid
@@ -41,7 +84,7 @@ class AsteroidManager(object):
         """
         # Get a random size, with probability depending on the game
         # rules
-        size = weighted_choice(self.game_rules.size_weights)
+        size = weighted_choice(self.levels.size_weights)
 
         # Generate a position out of bounds, and a random direction
         # to move towards
@@ -73,15 +116,30 @@ class AsteroidManager(object):
         # exceeds the time until the next generation, and if we're
         # below the maximum number of generated asteroids
         if self.last_gen_time >= self.next_gen_time and \
-                self.asteroid_count < self.game_rules.max_total:
+                self.asteroid_count < self.levels.max_total:
             self.asteroids.append(self.__gen_asteroid())
             self.asteroid_count += 1
 
             # Generate a new time for generation and reset the last
             # generation time
-            self.next_gen_time = rand.randint(self.game_rules.min_time,
-                                              self.game_rules.max_time)
+            self.next_gen_time = rand.randint(self.levels.min_time,
+                                              self.levels.max_time)
             self.last_gen_time = 0
+
+        # If there are no asteroids left in play, go to the next level
+        if len(self.asteroids) == 0:
+            # Reset regen values so we generate a new asteroid
+            # immediately, and reset the count
+            self.last_gen_time = 0
+            self.next_gen_time = 0
+            self.asteroid_count = 0
+
+            # If we're not out of levels, move to the next one
+            # Otherwise, we just restart on the last level
+            if len(self.all_levels) != 0:
+                self.curr_level = self.all_levels.pop()
+                self.curr_level_num += 1
+            return
 
         self.last_gen_time += dt
 
@@ -91,19 +149,17 @@ class AsteroidManager(object):
             ast.draw()
 
 
-class GameRules(object):
+class Level(object):
     """Represents a set of rules defining the likelihood of asteroids
     of certain sizes spawning, how often an asteroid will spawn, and
-    the maximum number of generated asteroids that can be on the screen
-    at one time.
+    the maximum number of asteroids generated for this level.
 
     Attributes:
         small_weight: likelihood of a small asteroid spawning
         medium_weight: likelihood of a medium asteroid spawning
         large_weight: likelihood of a large asteroid spawning
         huge_weight: likelihood of a huge asteroid spawning
-        max_total: the maximum number of generated asteroids that can
-            be on the screen at one time
+        max_total: the maximum number of asteroids that can be generated
         min_time: the minimum time it takes an asteroid to spawn
         max_time: the maximum time it takes an asteroid to spawn
 

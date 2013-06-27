@@ -57,8 +57,7 @@ class Pysteroids(object):
 
         # Create game rules and an asteroid manager to generate
         # asteroids
-        self.game_rules = GameRules(10, 8, 4, 2, 10, 5, 8)
-        self.asteroid_manager = AsteroidManager(self.game_rules)
+        self.asteroid_manager = AsteroidManager()
 
         # Set player variables
         self.player_dead = False
@@ -123,7 +122,6 @@ class Pysteroids(object):
                     # Also decrement the asteroid count by 1
                     self.asteroid_manager.asteroids.remove(asteroid)
                     self.asteroid_manager.asteroids.extend(asteroid.destroy())
-                    self.asteroid_manager.asteroid_count -= 1
 
                     # Remove the bullet from the screen
                     self.ship.bullets.remove(bullet)
