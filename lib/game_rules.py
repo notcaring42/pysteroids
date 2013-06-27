@@ -84,7 +84,7 @@ class AsteroidManager(object):
         """
         # Get a random size, with probability depending on the game
         # rules
-        size = weighted_choice(self.levels.size_weights)
+        size = weighted_choice(self.curr_level.size_weights)
 
         # Generate a position out of bounds, and a random direction
         # to move towards
@@ -116,14 +116,14 @@ class AsteroidManager(object):
         # exceeds the time until the next generation, and if we're
         # below the maximum number of generated asteroids
         if self.last_gen_time >= self.next_gen_time and \
-                self.asteroid_count < self.levels.max_total:
+                self.asteroid_count < self.curr_level.max_total:
             self.asteroids.append(self.__gen_asteroid())
             self.asteroid_count += 1
 
             # Generate a new time for generation and reset the last
             # generation time
-            self.next_gen_time = rand.randint(self.levels.min_time,
-                                              self.levels.max_time)
+            self.next_gen_time = rand.randint(self.curr_level.min_time,
+                                              self.curr_level.max_time)
             self.last_gen_time = 0
 
         # If there are no asteroids left in play, go to the next level
