@@ -3,6 +3,7 @@ Defines all the objects in the game.
 """
 from math import sin, cos, radians
 import random as rand
+import sys
 
 from pyglet.window import key
 
@@ -309,7 +310,12 @@ class Asteroid(Entity):
         asteroids.txt and populates the shapes list
         with them"""
 
-        ast_file = open('res/asteroids.txt', 'r')
+        # Ensure we actually have an asteroids.txt file to parse
+        try:
+            ast_file = open('res/asteroids.txt', 'r')
+        except IOError:
+            sys.exit('ERROR: res/asteroids.txt not found!')
+
         shapes = []
 
         for line in ast_file:
@@ -321,7 +327,11 @@ class Asteroid(Entity):
             # Next we convert each entry into a floating point
             # number
             for i in range(0, len(verts)):
-                verts[i] = float(verts[i])
+                try:
+                    verts[i] = float(verts[i])
+                except ValueError:
+                    sys.exit("""ERROR: found entry in asteroids.txt which is
+                        not a number!""")
 
             # The last entry of each line is the default scale
             # (scale for a medium-sized asteroid with this shape)
