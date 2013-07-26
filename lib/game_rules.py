@@ -21,9 +21,16 @@ class AsteroidManager(object):
         next_gen_time: the time until the next asteroid will be
             generated
         last_gen_time: the time since the last asteroid was generated
+        on_level_change: callback function to invoke when the player
+            completes a level
     """
-    def __init__(self):
+    def __init__(self, on_level_change):
         """Creates a new AsteroidManager
+
+        Parameters:
+            on_level_change: function to call when the player moves to
+                the next level. Requires a parameter for the class to
+                pass back the new level number
 
         Returns:
             a new AsteroidManager
@@ -33,6 +40,7 @@ class AsteroidManager(object):
         self.all_levels = self.__parse_levels()
         self.curr_level = self.all_levels.pop()
         self.curr_level_num = 1
+        self.on_level_change = on_level_change
         self.next_gen_time = 0
         self.last_gen_time = 0
 
@@ -40,7 +48,7 @@ class AsteroidManager(object):
         """Parses the game levels from levels.txt
 
         Returns:
-            a list of game rules
+            a list of Levels
         """
         all_levels = []
 
@@ -139,6 +147,10 @@ class AsteroidManager(object):
             if len(self.all_levels) != 0:
                 self.curr_level = self.all_levels.pop()
                 self.curr_level_num += 1
+
+            # Invoke the callback
+            self.on_level_change(self.curr_level_num)
+
             return
 
         self.last_gen_time += dt
