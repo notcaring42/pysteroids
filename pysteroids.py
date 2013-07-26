@@ -1,8 +1,6 @@
 """Entry point for running the game"""
 # Pysteroids - An Asteroids clone in Python
 # Max Mays
-import random as rand
-
 import pyglet
 from pyglet.window import key
 from pyglet.gl import glLoadIdentity
