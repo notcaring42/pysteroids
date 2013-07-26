@@ -217,7 +217,16 @@ class Pysteroids(object):
                                             y=WINDOW_HEIGHT//2,
                                             anchor_x='center',
                                             anchor_y='center')
+
+        final_score_label = pyglet.text.Label('Your Score: ' + str(self.score),
+                                              font_name='Droid Sans Mono',
+                                              font_size=26,
+                                              x=WINDOW_WIDTH//2,
+                                              y=WINDOW_HEIGHT//2 - 35,
+                                              anchor_x='center',
+                                              anchor_y='center')
         game_over_label.draw()
+        final_score_label.draw()
 
     def set_vulnerable(self, dt):
         """Sets the player as vulnerable to destruction
