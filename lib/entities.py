@@ -153,7 +153,7 @@ class Ship(Entity):
     """
 
     __max_speed = 1.5
-    __shoot_delay = 0.4
+    __shoot_delay = 0.8
 
     def __init__(self, pos=Vector(0, 0), rot=0.0):
         """Creates a new Ship

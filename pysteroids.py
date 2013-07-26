@@ -36,9 +36,7 @@ class Pysteroids(object):
             the player has left
     """
     def __init__(self):
-        """
-        Starts the game
-        """
+        """Starts the game"""
         # Create the window and register the draw handler
         self.window = pyglet.window.Window(caption='Pysteroids',
                                            width=WINDOW_WIDTH,
