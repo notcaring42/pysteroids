@@ -1,6 +1,8 @@
 """Entry point for running the game"""
 # Pysteroids - An Asteroids clone in Python
 # Max Mays
+import random as rand
+
 import pyglet
 from pyglet.window import key
 from pyglet.gl import glLoadIdentity
@@ -54,8 +56,9 @@ class Pysteroids(object):
         self.keys = key.KeyStateHandler()
         self.window.push_handlers(self.keys)
 
-        # Create game entities
-        self.ship = Ship(pos=Vector(100, 100))
+        # Create the player's ship
+        # Spawn it in the (approximate) middle of the screen
+        self.ship = Ship(pos=Vector(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
 
         # Create game rules and an asteroid manager to generate
         # asteroids
@@ -186,7 +189,7 @@ class Pysteroids(object):
                 requires it as a parameter
         """
         # Create a new ship and reset player variables
-        self.ship = Ship(pos=Vector(100, 100))
+        self.ship = Ship(pos=Vector(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
         self.player_dead = False
         self.player_vulnerable = False
 
@@ -218,6 +221,7 @@ class Pysteroids(object):
                                             anchor_x='center',
                                             anchor_y='center')
 
+        # Display the player's final score
         final_score_label = pyglet.text.Label('Your Score: ' + str(self.score),
                                               font_name='Droid Sans Mono',
                                               font_size=26,
