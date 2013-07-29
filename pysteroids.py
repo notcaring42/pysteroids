@@ -25,14 +25,6 @@ class Pysteroids(object):
             many asteroids can be on the screen per type
         asteroid_manager: the AsteroidManager responsible for
             generating new asteroids based on the game rules
-        player_dead: a boolean value representing whether or not
-            the player is dead right now
-        player_vulnerable: a boolean value representing whether or not
-            the player is vulnerable to being destroyed by an asteroid
-        game_over: a boolean value representing whether or not the player
-            has run out of lives
-        lives_left: the number of lives the player has Left
-        score: the player's current score
         lives_left_label: a label for displaying the number of lives
             the player has left
         score_label: a label for displaying the player's score
