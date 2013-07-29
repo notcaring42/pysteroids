@@ -39,9 +39,6 @@ class Pysteroids(object):
                                            height=WINDOW_HEIGHT)
         self.window.on_draw = self.on_draw
 
-        # Create a display to show FPS
-        self.fps_display = pyglet.clock.ClockDisplay()
-
         # Add key handler to keep track of key presses
         self.keys = key.KeyStateHandler()
         self.window.push_handlers(self.keys)
@@ -138,9 +135,6 @@ class Pysteroids(object):
 
         # Reset to the identity view matrix
         glLoadIdentity()
-
-        # Draw FPS
-        self.fps_display.draw()
 
         # Draw the game over screen if the player is out of lives,
         # otherwise draw the lives left and the player (if not dead)
