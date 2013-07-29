@@ -71,7 +71,8 @@ class Pysteroids(object):
 
         # Create a lable for displaying the current level
         self.level_label = \
-            pyglet.text.Label('Level: ' + str(self.asteroid_manager.curr_level_num),
+            pyglet.text.Label('Level: ' + str(self.asteroid_manager
+                                                  .curr_level_num),
                               font_name='Droid Sans Mono',
                               font_size=12,
                               x=WINDOW_WIDTH // 2, y=WINDOW_HEIGHT-15,
