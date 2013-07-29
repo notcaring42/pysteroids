@@ -154,6 +154,7 @@ class Ship(Entity):
 
     __max_speed = 1.5
     __shoot_delay = 0.8
+    __teleport_delay = 7.0
 
     def __init__(self, pos=Vector(0, 0), rot=0.0):
         """Creates a new Ship
@@ -175,6 +176,7 @@ class Ship(Entity):
         # Initialize bullet list
         self.bullets = []
         self.__last_shoot = self.__shoot_delay
+        self.__last_teleport = self.__teleport_delay
 
         Entity.__init__(self, (20, 0, -30, 20, -30, -20), direction,
                         lin_speed=1.0, rot_speed=1.8, pos=pos, rot=rot,
@@ -219,10 +221,21 @@ class Ship(Entity):
         if keys[key.SPACE] and (self.__last_shoot >= self.__shoot_delay):
             bullet_pos = self.pos + 3*self.direction
             self.bullets.append(Bullet(bullet_pos, self.rot,
-                                         self.direction))
+                                       self.direction))
             self.__last_shoot = 0
         else:
             self.__last_shoot += dt
+
+        # Teleport the ship to a random location
+        if keys[key.LSHIFT] and (self.__last_teleport >=
+                                 self.__teleport_delay):
+            # We give a buffer of 20 units so the ship doesn't teleport
+            # to the very edge of the screen
+            self.pos = Vector(rand.randint(20, WINDOW_WIDTH-20),
+                              rand.randint(20, WINDOW_HEIGHT-20))
+            self.__last_teleport = 0
+        else:
+            self.__last_teleport += dt
 
     def update(self, keys, dt):
         """Updates the ship and handles input
