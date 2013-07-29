@@ -5,10 +5,10 @@ import pyglet
 from pyglet.window import key
 from pyglet.gl import glLoadIdentity
 
-from lib.geometry.vector import Vector
-from lib.entities import Ship, Asteroid
+from lib.entities import Asteroid
 from lib.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from lib.game_rules import AsteroidManager
+from lib.player import Player
 
 
 class Pysteroids(object):
@@ -54,24 +54,16 @@ class Pysteroids(object):
         self.keys = key.KeyStateHandler()
         self.window.push_handlers(self.keys)
 
-        # Create the player's ship
-        # Spawn it in the (approximate) middle of the screen
-        self.ship = Ship(pos=Vector(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
+        # Create the player
+        self.player = Player()
 
         # Create game rules and an asteroid manager to generate
         # asteroids
         self.asteroid_manager = AsteroidManager(self.on_level_change)
 
-        # Set player variables
-        self.player_dead = False
-        self.player_vulnerable = True
-        self.game_over = False
-        self.lives_left = 3
-        self.score = 0
-
         # Create a label for displaying the number of lives left
         self.lives_left_label = \
-            pyglet.text.Label('Lives Left: ' + str(self.lives_left),
+            pyglet.text.Label('Lives Left: ' + str(self.player.lives_left),
                               font_name='Droid Sans Mono',
                               font_size=12,
                               x=70, y=WINDOW_HEIGHT-15,
@@ -79,7 +71,7 @@ class Pysteroids(object):
 
         # Create a score label
         self.score_label = \
-            pyglet.text.Label('Score: ' + str(self.score),
+            pyglet.text.Label('Score: ' + str(self.player.score),
                               font_name='Droid Sans Mono',
                               font_size=12,
                               x=WINDOW_WIDTH-70, y=WINDOW_HEIGHT-15,
@@ -107,35 +99,26 @@ class Pysteroids(object):
 
         # If the player is dead, we don't have to update
         # the ship or check for collisions
-        if self.player_dead:
+        if self.player.is_dead:
             return
-        self.ship.update(self.keys, dt)
+        self.player.update(self.keys, dt)
 
         # Check for bullet hits
         for asteroid in self.asteroid_manager.asteroids:
             # We only need to check collisions if the player is
             # vulnerable, so if the player is not this will
             # short-circuit
-            if self.player_vulnerable and asteroid.collides(self.ship):
-                # Mark the player has dead and subtract a life
-                self.player_dead = True
-                self.lives_left -= 1
+            if self.player.is_vulnerable and asteroid.collides(self.player
+                                                                   .ship):
+                self.player.kill()
 
-                # If the player is out of lives, game over!
-                if self.lives_left == 0:
-                    self.game_over = True
-                    break
                 # Update the display to reflect the new number of lives
                 self.lives_left_label.text = ('Lives Left: ' +
-                                              str(self.lives_left))
-
-                # Clear out the ship variable, and set a respawn
-                # for 3 seconds.
-                del self.ship
-                pyglet.clock.schedule_once(self.respawn_player, 3)
+                                              str(self.player.lives_left))
                 break
+
             # Check bullet collisions
-            for bullet in self.ship.bullets:
+            for bullet in self.player.bullets:
                 if bullet.collides(asteroid):
                     # Remove the current asteroid and add the asteroids
                     # that result from the destruction, if there are any
@@ -149,11 +132,12 @@ class Pysteroids(object):
                     # automatically be worth more since they 'contain'
                     # many small asteroids
                     if asteroid.size == Asteroid.Size.SMALL:
-                        self.score += 10
-                        self.score_label.text = 'Score: ' + str(self.score)
+                        self.player.score += 10
+                        self.score_label.text = 'Score: ' + str(self.player
+                                                                    .score)
 
                     # Remove the bullet from the screen
-                    self.ship.bullets.remove(bullet)
+                    self.player.bullets.remove(bullet)
 
     def on_draw(self):
         """Handler for the on_draw event of the game window"""
@@ -167,33 +151,17 @@ class Pysteroids(object):
 
         # Draw the game over screen if the player is out of lives,
         # otherwise draw the lives left and the player (if not dead)
-        if self.game_over:
+        if self.player.game_over:
             self.draw_game_over()
         else:
             self.lives_left_label.draw()
             self.score_label.draw()
             self.level_label.draw()
-            if not self.player_dead:
-                self.ship.draw()
+            if not self.player.is_dead:
+                self.player.draw()
 
         # Always draw the asteroids
         self.asteroid_manager.draw_asteroids()
-
-    def respawn_player(self, dt):
-        """Respawns the player's ship.
-
-        Parameters:
-            dt: not applicable, included because scheduling with pyglet
-                requires it as a parameter
-        """
-        # Create a new ship and reset player variables
-        self.ship = Ship(pos=Vector(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
-        self.player_dead = False
-        self.player_vulnerable = False
-
-        # Initially, the player is not vulnerable to destruction.
-        # Schedule vulnerability for 3 seconds after spawn.
-        pyglet.clock.schedule_once(self.set_vulnerable, 3)
 
     def on_level_change(self, level_num):
         """Callback for AsteroidManager, invoked when the player
@@ -206,7 +174,7 @@ class Pysteroids(object):
                                                      .curr_level_num))
 
         # Give the player some bonus points for completing a level
-        self.score += 50
+        self.player.score += 50
 
     def draw_game_over(self):
         """Draws the game over screen"""
@@ -220,7 +188,8 @@ class Pysteroids(object):
                                             anchor_y='center')
 
         # Display the player's final score
-        final_score_label = pyglet.text.Label('Your Score: ' + str(self.score),
+        final_score_label = pyglet.text.Label(('Your Score: ' +
+                                              str(self.player.score)),
                                               font_name='Droid Sans Mono',
                                               font_size=26,
                                               x=WINDOW_WIDTH//2,
@@ -229,15 +198,6 @@ class Pysteroids(object):
                                               anchor_y='center')
         game_over_label.draw()
         final_score_label.draw()
-
-    def set_vulnerable(self, dt):
-        """Sets the player as vulnerable to destruction
-
-        Parameters:
-            dt: not applicable, included because scheduling with pyglet
-                requires it as a parameter
-        """
-        self.player_vulnerable = True
 
 # Initialize the game and start it
 if __name__ == '__main__':
