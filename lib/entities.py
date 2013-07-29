@@ -150,6 +150,14 @@ class Ship(Entity):
                      travel
         __movement: the movement vector that the ship is translated by
                     each frame
+        __shoot_delay: time that must elapse before the player can
+                       shoot again
+        __teleport_delay: time that must elapse before the player can
+                          teleport again
+        __last_shoot: amount of time since the player last shot
+        __last_teleport: amount of time since the player last
+                         teleported
+        bullets: a list of bullets shot by the player that are in play
     """
 
     __max_speed = 1.5
