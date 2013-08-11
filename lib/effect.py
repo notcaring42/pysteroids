@@ -59,18 +59,19 @@ class Animation(object):
 
     Attributes:
         name: the name of the animation
-        particles: a list of Entities which act as the particles in
-                   the animation
+        particle_gen: the function used to generate particles for the
+                      animation
         lifespan: the amount of time the animation plays for,
                   in seconds
         current_life: the amount of time the animation has played for
                       so far, in seconds
         is_active: is the animation currently active?
     """
-    def __init__(self, name, particles, lifespan):
+    def __init__(self, name, lifespan, particle_gen):
         """Creates a new Animation"""
         self.name = name
-        self.particles = particles
+        self.particles = particle_gen()
+        self.particle_gen = particle_gen
         self.lifespan = lifespan
         self.current_life = 0
         self.is_active = False
@@ -102,46 +103,14 @@ class Animation(object):
             self.current_life = 0
             self.is_active = False
 
+            # Generate a new set of particles
+            self.particles = self.particle_gen()
+
     def draw(self):
         """Draws the animation to the screen"""
         for particle in self.particles:
             particle.draw()
 
-class RandomAnimation(Animation):
-    """An animation in which the particles are randomized in some way
-
-    Attributes:
-        particle_gen: the function used to generate a new set of random
-                      particles
-    """
-    def __init__(self, name, lifespan, particle_gen):
-        """Creates a new RandomAnimation"""
-        self.name = name
-        self.lifespan = lifespan
-        self.particle_gen = particle_gen
-        self.current_life = 0
-        self.is_active = False
-
-        # Generate an initial set of random particles
-        self.particles = particle_gen()
-
-    def update(self, dt):
-        """Updates the RandomAnimation's particles
-
-        Parameters:
-            dt: the time since the last update
-        """
-        for particle in self.particles:
-            particle.update(dt)
-        self.current_life += dt
-
-        # Check if the animation has expired
-        if self.current_life >= self.lifespan:
-            self.current_life = 0
-            self.is_active = False
-
-            # Generate a new set of random particles
-            self.particles = self.particle_gen()
 
 def generate_animations():
     """Generates a dictionary containing all of the game's animations"""
@@ -163,6 +132,21 @@ def generate_animations():
                               lin_speed)
             fragments.append(fragment)
         return fragments
-    animations['PLAYER_DEAD'] = RandomAnimation('PLAYER_DEAD', 2, pd_gen_particles)
+    animations['PLAYER_DEAD'] = Animation('PLAYER_DEAD', 2, pd_gen_particles)
+
+    # PLAYER_TELEPORT
+    def pt_gen_particles():
+        tele_lines = []
+
+        # Four lines at 45-degree angles to the x-y axes
+        tele_rot = [45, 135, 225, 315]
+        tele_directions = [Vector(1, 1), Vector(-1, 1), Vector(-1, -1), 
+                           Vector(1, -1)]
+        for rot, direction in zip(tele_rot, tele_directions):
+            tele_lines.append(Entity((-3, 0.5, 3, 0.5, 3, -0.5, -3, -0.5), 
+                              direction, 0.6, rot=rot))
+        return tele_lines
+
+    animations['PLAYER_TELEPORT'] = Animation('PLAYER_TELEPORT', 0.8, pt_gen_particles)
 
     return animations
