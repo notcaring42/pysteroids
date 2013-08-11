@@ -24,6 +24,7 @@ class Player(object):
         game_over: is the player out of lives?
         score: the player's score
         bullets: the player's active Bullets
+        effect_player: the game's EffectPlayer
     """
     def __init__(self):
         """Initializes player variables and creates his Ship
@@ -119,6 +120,7 @@ class Ship(Entity):
         __last_teleport: amount of time since the player last
                          teleported
         bullets: a list of bullets shot by the player that are in play
+        effect_player: the game's EffectPlayer
     """
 
     __max_speed = 1.5
@@ -146,7 +148,7 @@ class Ship(Entity):
         self.bullets = []
         self.__last_shoot = self.__shoot_delay
         self.__last_teleport = self.__teleport_delay
-
+        self.effect_player = EffectPlayer.instance()
         Entity.__init__(self, (20, 0, -30, 20, -30, -20), direction,
                         lin_speed=1.0, rot_speed=1.8, pos=pos, rot=rot,
                         scale=0.5)
@@ -198,10 +200,11 @@ class Ship(Entity):
         # Teleport the ship to a random location
         if keys[key.LSHIFT] and (self.__last_teleport >=
                                  self.__teleport_delay):
-            # We give a buffer of 20 units so the ship doesn't teleport
-            # to the very edge of the screen
-            self.pos = Vector(randint(20, WINDOW_WIDTH-20),
-                              randint(20, WINDOW_HEIGHT-20))
+            # Put the player way off the screen to make it look
+            # like he's teleporting, and to avoid possible collisions
+            self.effect_player.play_animation('PLAYER_TELEPORT', self.pos)
+            self.pos = Vector(5000, 5000)
+            schedule_once(self.__teleport, 1.5)
             self.__last_teleport = 0
         else:
             self.__last_teleport += dt
@@ -236,6 +239,12 @@ class Ship(Entity):
         Entity.draw(self)
         for bullet in self.bullets:
             bullet.draw()
+
+    def __teleport(self, dt):
+        # We give a buffer of 20 units so the ship doesn't teleport
+        # to the very edge of the screen
+        self.pos = Vector(randint(20, WINDOW_WIDTH-20),
+                          randint(20, WINDOW_HEIGHT-20))
 
     # Direction stored as a property to ensure normalization
     @property

@@ -19,17 +19,20 @@ class Pysteroids(object):
         keys: the key state
         ship: the player's ship
         asteroids: a list of the currently active asteroids
+        effect_player: the EffectPlayer used to play animations and
+                       sounds
         fps_display: a display to show the current FPS of the
-            application
+                     application
         game_rules: the current set of game rules, defining how
-            many asteroids can be on the screen per type
+                    many asteroids can be on the screen per type
         asteroid_manager: the AsteroidManager responsible for
-            generating new asteroids based on the game rules
+                          generating new asteroids based on the game 
+                          rules
         lives_left_label: a label for displaying the number of lives
-            the player has left
+                          the player has left
         score_label: a label for displaying the player's score
         level_label: a label for displaying the current level the
-            player is on
+                     player is on
     """
     def __init__(self):
         """Starts the game"""
@@ -43,6 +46,7 @@ class Pysteroids(object):
         self.keys = key.KeyStateHandler()
         self.window.push_handlers(self.keys)
 
+        # Grab the game's effect player
         self.effect_player = EffectPlayer.instance()
 
         # Create the player
