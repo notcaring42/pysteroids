@@ -43,10 +43,10 @@ class Pysteroids(object):
         self.keys = key.KeyStateHandler()
         self.window.push_handlers(self.keys)
 
-        self.effect_player = EffectPlayer()
+        self.effect_player = EffectPlayer.instance()
 
         # Create the player
-        self.player = Player(self.effect_player)
+        self.player = Player()
 
         # Create game rules and an asteroid manager to generate
         # asteroids

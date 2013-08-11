@@ -1,10 +1,11 @@
 import random as rand
 
 from lib.entities import Entity
-from lib.utils import rand_direction, WINDOW_WIDTH, WINDOW_HEIGHT
+from lib.utils import rand_direction, WINDOW_WIDTH, WINDOW_HEIGHT, Singleton
 from lib.geometry.vector import Vector
 
 
+@Singleton
 class EffectPlayer(object):
     def __init__(self):
         self.active_animations = []

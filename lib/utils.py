@@ -92,3 +92,43 @@ def weighted_choice(choices):
 
     # In case something goes wrong
     assert False, 'Nothing was chosen'
+
+
+class Singleton(object):
+    """Implementation of a Singleton design pattern, taken from
+    http://stackoverflow.com/questions/42558/python-and-the-
+    singleton-pattern
+
+    Used as a decorator on a class to mark it as a singleton.
+    The class can have an __init__ method with only 'self' as the
+    argument. The instance for that class must be accesed through
+    'instance()'
+
+    Attributes:
+        _decorated: the singleton class
+        _instance: the sole instance of the singleton class
+    """
+    def __init__(self, decorated):
+        """Marks a class as a singleton
+
+        Parameters:
+            decorated: the class marked with the @Singleton decorator
+        """
+        self._decorated = decorated
+
+    def instance(self):
+        """Returns the sole instance of the singleton class"""
+        # Check to make sure the instance exists
+        try:
+            return self._instance
+        # If not, we need to construct it
+        except AttributeError:
+            self._instance = self._decorated()
+            return self._instance
+
+    def __call__(self):
+        # Singletons can't have more than one instance
+        raise TypeError('Singletons must be accesed through \'instance()\'')
+
+    def __instancecheck__(self, inst):
+        return isinstance(self, self._decorated)

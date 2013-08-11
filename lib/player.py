@@ -10,6 +10,7 @@ from pyglet.window import key
 
 from lib.utils import Vector, clamp, WINDOW_WIDTH, WINDOW_HEIGHT
 from lib.entities import Entity, Bullet
+from lib.effect import EffectPlayer
 
 
 class Player(object):
@@ -24,7 +25,7 @@ class Player(object):
         score: the player's score
         bullets: the player's active Bullets
     """
-    def __init__(self, effect_player):
+    def __init__(self):
         """Initializes player variables and creates his Ship
 
         Returns:
@@ -40,7 +41,7 @@ class Player(object):
         self.game_over = False
         self.score = 0
         self.bullets = self.ship.bullets
-        self.effect_player = effect_player
+        self.effect_player = EffectPlayer.instance()
 
     def update(self, keys, dt):
         """Updates the player's ship
