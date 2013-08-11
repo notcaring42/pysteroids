@@ -149,4 +149,20 @@ def generate_animations():
 
     animations['PLAYER_TELEPORT'] = Animation('PLAYER_TELEPORT', 0.8, pt_gen_particles)
 
+    # ASTEROID_DESTROY
+    def ad_gen_particles():
+        fragments = []
+        for i in range(1, 11):
+            lin_speed = rand.uniform(0.5, 1.5)
+
+            # Note that we generate random directions relative to the
+            # middle of the screen, because rand_direction is based on
+            # having a reference position in game bounds
+            fragment = Entity((-1, 1, 1, 1, 1, -1, -1, -1),
+                              rand_direction(Vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2)),
+                              lin_speed)
+            fragments.append(fragment)
+        return fragments
+    animations['ASTEROID_DESTROY'] = Animation('ASTEROID_DESTROY', 0.6, ad_gen_particles)
+
     return animations

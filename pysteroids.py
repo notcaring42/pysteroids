@@ -6,10 +6,10 @@ from pyglet.window import key
 from pyglet.gl import glLoadIdentity
 
 from lib.entities import Asteroid
+from lib.effect import EffectPlayer
 from lib.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from lib.game_rules import AsteroidManager
 from lib.player import Player
-from lib.effect import EffectPlayer
 
 class Pysteroids(object):
     """Runs the game and manages game variables

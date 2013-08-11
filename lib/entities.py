@@ -152,7 +152,8 @@ class Asteroid(Entity):
         max_lin_speed: the maximum linear speed an asteroid can have
         min_lin_speed: the minimum linear speed an asteroid can have
         max_rot_speed: the maximum rotational speed an asteroid
-            can have
+                       can have
+        effect_player: the game's EffectPlayer
     """
     class Size:
         """Defines the possible asteroid sizes"""
@@ -253,6 +254,10 @@ class Asteroid(Entity):
         elif size == Asteroid.Size.HUGE:
             scale_factor = 1.5
 
+        # Grab the EffectPlayer
+        from effect import EffectPlayer
+        self.effect_player = EffectPlayer.instance()
+
         Entity.__init__(self, self.__shape, direction, lin_speed=lin_speed,
                         rot_speed=rot_speed, pos=pos, rot=rot,
                         scale=self.__def_scale * scale_factor)
@@ -265,6 +270,9 @@ class Asteroid(Entity):
             a list containing the asteroids resulting from
             the destruction of this one
         """
+        # Play destroy animation
+        self.effect_player.play_animation('ASTEROID_DESTROY', self.pos)        
+
         # Depending on the size of the asteroid, create
         # new asteroids resulting from its destruction
         if self.size == Asteroid.Size.SMALL:
