@@ -9,7 +9,7 @@ from lib.entities import Asteroid
 from lib.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from lib.game_rules import AsteroidManager
 from lib.player import Player
-
+from lib.effect import EffectPlayer
 
 class Pysteroids(object):
     """Runs the game and manages game variables
@@ -43,8 +43,10 @@ class Pysteroids(object):
         self.keys = key.KeyStateHandler()
         self.window.push_handlers(self.keys)
 
+        self.effect_player = EffectPlayer()
+
         # Create the player
-        self.player = Player()
+        self.player = Player(self.effect_player)
 
         # Create game rules and an asteroid manager to generate
         # asteroids
@@ -78,6 +80,7 @@ class Pysteroids(object):
         # Register and schedule the update function
         pyglet.clock.schedule(self.update)
 
+
     def update(self, dt):
         """Updates the game entities
 
@@ -86,6 +89,9 @@ class Pysteroids(object):
         """
         # Update the asteroids
         self.asteroid_manager.update(dt)
+
+        # Update any animation data
+        self.effect_player.update(dt)
 
         # If the player is dead, we don't have to update
         # the ship or check for collisions
@@ -146,6 +152,9 @@ class Pysteroids(object):
             self.level_label.draw()
             if not self.player.is_dead:
                 self.player.draw()
+
+        # Draw animation stuff
+        self.effect_player.draw_animations()
 
         # Always draw the asteroids
         self.asteroid_manager.draw_asteroids()

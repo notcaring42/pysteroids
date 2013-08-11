@@ -24,7 +24,7 @@ class Player(object):
         score: the player's score
         bullets: the player's active Bullets
     """
-    def __init__(self):
+    def __init__(self, effect_player):
         """Initializes player variables and creates his Ship
 
         Returns:
@@ -40,6 +40,7 @@ class Player(object):
         self.game_over = False
         self.score = 0
         self.bullets = self.ship.bullets
+        self.effect_player = effect_player
 
     def update(self, keys, dt):
         """Updates the player's ship
@@ -57,6 +58,9 @@ class Player(object):
     def kill(self):
         """Kills the player and schedules him for respawn"""
         self.is_dead = True
+
+        # Play death animation
+        self.effect_player.play_animation('PLAYER_DEAD', self.ship.pos)
 
         # Subtract a life and check if the player still has any
         # lives left
