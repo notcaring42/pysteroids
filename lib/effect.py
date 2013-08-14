@@ -5,13 +5,14 @@ from lib.entities import Entity
 from lib.utils import rand_direction, WINDOW_WIDTH, WINDOW_HEIGHT, Singleton
 from lib.geometry.vector import Vector
 
+
 # EffectPlayer will be a singleton, since only one instance is needed,
 # and to allow easy access to the instance through the class
 @Singleton
 class EffectPlayer(object):
     """Plays visual and audio effects throughout the game.
 
-    This is a singleton, and should be accessed through 
+    This is a singleton, and should be accessed through
     'EffectPlayer.instance()'.
 
     Attributes:
@@ -128,7 +129,8 @@ def generate_animations():
             # middle of the screen, because rand_direction is based on
             # having a reference position in game bounds
             fragment = Entity((-1, 1, 1, 1, 1, -1, -1, -1),
-                              rand_direction(Vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2)),
+                              rand_direction(Vector(WINDOW_WIDTH//2,
+                                                    WINDOW_HEIGHT//2)),
                               lin_speed)
             fragments.append(fragment)
         return fragments
@@ -140,14 +142,15 @@ def generate_animations():
 
         # Four lines at 45-degree angles to the x-y axes
         tele_rot = [45, 135, 225, 315]
-        tele_directions = [Vector(1, 1), Vector(-1, 1), Vector(-1, -1), 
+        tele_directions = [Vector(1, 1), Vector(-1, 1), Vector(-1, -1),
                            Vector(1, -1)]
         for rot, direction in zip(tele_rot, tele_directions):
-            tele_lines.append(Entity((-3, 0.5, 3, 0.5, 3, -0.5, -3, -0.5), 
+            tele_lines.append(Entity((-3, 0.5, 3, 0.5, 3, -0.5, -3, -0.5),
                               direction, 0.6, rot=rot))
         return tele_lines
 
-    animations['PLAYER_TELEPORT'] = Animation('PLAYER_TELEPORT', 0.8, pt_gen_particles)
+    animations['PLAYER_TELEPORT'] = Animation('PLAYER_TELEPORT', 0.8,
+                                              pt_gen_particles)
 
     # ASTEROID_DESTROY
     def ad_gen_particles():
@@ -159,10 +162,12 @@ def generate_animations():
             # middle of the screen, because rand_direction is based on
             # having a reference position in game bounds
             fragment = Entity((-1, 1, 1, 1, 1, -1, -1, -1),
-                              rand_direction(Vector(WINDOW_WIDTH//2, WINDOW_HEIGHT//2)),
+                              rand_direction(Vector(WINDOW_WIDTH//2,
+                                                    WINDOW_HEIGHT//2)),
                               lin_speed)
             fragments.append(fragment)
         return fragments
-    animations['ASTEROID_DESTROY'] = Animation('ASTEROID_DESTROY', 0.6, ad_gen_particles)
+    animations['ASTEROID_DESTROY'] = Animation('ASTEROID_DESTROY', 0.6,
+                                               ad_gen_particles)
 
     return animations

@@ -271,7 +271,7 @@ class Asteroid(Entity):
             the destruction of this one
         """
         # Play destroy animation
-        self.effect_player.play_animation('ASTEROID_DESTROY', self.pos)        
+        self.effect_player.play_animation('ASTEROID_DESTROY', self.pos)
 
         # Depending on the size of the asteroid, create
         # new asteroids resulting from its destruction
