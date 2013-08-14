@@ -11,6 +11,7 @@ from lib.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from lib.game_rules import AsteroidManager
 from lib.player import Player
 
+
 class Pysteroids(object):
     """Runs the game and manages game variables
 
@@ -26,7 +27,7 @@ class Pysteroids(object):
         game_rules: the current set of game rules, defining how
                     many asteroids can be on the screen per type
         asteroid_manager: the AsteroidManager responsible for
-                          generating new asteroids based on the game 
+                          generating new asteroids based on the game
                           rules
         lives_left_label: a label for displaying the number of lives
                           the player has left
@@ -84,7 +85,6 @@ class Pysteroids(object):
         # Register and schedule the update function
         pyglet.clock.schedule(self.update)
 
-
     def update(self, dt):
         """Updates the game entities
 
@@ -100,7 +100,11 @@ class Pysteroids(object):
         # If the player is dead, we don't have to update
         # the ship or check for collisions
         if self.player.is_dead:
+            # If the player hits R, reset
+            if (self.keys[key.R]):
+                self.reset()
             return
+
         self.player.update(self.keys, dt)
 
         # Check for bullet hits
@@ -196,8 +200,23 @@ class Pysteroids(object):
                                               y=WINDOW_HEIGHT//2 - 35,
                                               anchor_x='center',
                                               anchor_y='center')
+        # Display option to restart
+        reset_label = pyglet.text.Label('Press \'R\' to reset',
+                                        font_name='Droid Sans Mono',
+                                        font_size=20,
+                                        x=WINDOW_WIDTH//2,
+                                        y=WINDOW_HEIGHT//2 - 70,
+                                        anchor_x='center',
+                                        anchor_y='center')
+
         game_over_label.draw()
         final_score_label.draw()
+        reset_label.draw()
+
+    def reset(self):
+        """Reset the game"""
+        self.player = Player()
+        self.asteroid_manager = AsteroidManager(self.on_level_change)
 
 # Initialize the game and start it
 if __name__ == '__main__':
