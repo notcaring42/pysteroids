@@ -10,6 +10,8 @@ from lib.effect import EffectPlayer
 from lib.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from lib.game_rules import AsteroidManager
 from lib.player import Player
+from lib.geometry.shape import Shape
+from lib.geometry.vector import Vector
 
 
 class Pysteroids(object):
@@ -155,9 +157,9 @@ class Pysteroids(object):
         if self.player.game_over:
             self.draw_game_over()
         else:
-            self.lives_left_label.draw()
             self.score_label.draw()
             self.level_label.draw()
+            self.draw_lives_left()
             if not self.player.is_dead:
                 self.player.draw()
 
@@ -179,6 +181,39 @@ class Pysteroids(object):
 
         # Give the player some bonus points for completing a level
         self.player.score += 50
+
+    def draw_lives_left(self):
+        """Draws an indicator showing how many lives the player
+        has left.
+
+        Lives left are drawn as ships.
+        """
+        # Label the indicator
+        lives_left_label = pyglet.text.Label('Lives:',
+                                             font_name='Droid Sans Mono',
+                                             font_size=12,
+                                             anchor_x='center',
+                                             anchor_y='center',
+                                             x=70,
+                                             y=WINDOW_HEIGHT-15)
+        lives_left_label.draw()
+
+        # Some variables which we will use to draw the ships
+        scale = 0.4
+        y = WINDOW_HEIGHT - 15
+
+        # The first ship will be drawn at x, and then
+        # the we will increment by dx for each ship we
+        # draw to get the new x position
+        x = 120
+        dx = 25
+
+        # Draw one ship for each life left
+        for i in range(0, self.player.lives_left):
+            ship_shape = Shape((20, 0, -30, 20, -30, -20),
+                               Vector(x, y), 90, scale)
+            ship_shape.draw()
+            x += dx
 
     def draw_game_over(self):
         """Draws the game over screen"""
