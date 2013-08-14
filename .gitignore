@@ -5,3 +5,6 @@
 *.pyc
 lib/*.pyc
 lib/geometry/*.pyc
+
+# Ignore SFXR sound files
+res/sounds/*.sfxr
