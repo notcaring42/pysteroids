@@ -4,6 +4,8 @@ Defines all the objects in the game.
 import random as rand
 import sys
 
+import pyglet
+
 from geometry.shape import Shape
 from geometry.vector import Vector
 from utils import WINDOW_WIDTH, WINDOW_HEIGHT, wrap_angle, rand_direction
@@ -175,7 +177,7 @@ class Asteroid(Entity):
 
         # Ensure we actually have an asteroids.txt file to parse
         try:
-            ast_file = open('res/asteroids.txt', 'r')
+            ast_file = pyglet.resource.file('asteroids.txt', 'r')
         except IOError:
             sys.exit('ERROR: res/asteroids.txt not found!')
 

@@ -45,6 +45,10 @@ class Pysteroids(object):
                                            height=WINDOW_HEIGHT)
         self.window.on_draw = self.on_draw
 
+        # Set resource paths
+        pyglet.resource.path = ['res', 'res/sounds']
+        pyglet.resource.reindex()
+
         # Add key handler to keep track of key presses
         self.keys = key.KeyStateHandler()
         self.window.push_handlers(self.keys)

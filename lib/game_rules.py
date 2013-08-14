@@ -2,6 +2,8 @@
 import sys
 import random as rand
 
+import pyglet
+
 from lib.entities import Asteroid
 from lib.geometry.vector import Vector
 from lib.utils import weighted_choice, WINDOW_WIDTH, \
@@ -53,7 +55,7 @@ class AsteroidManager(object):
         all_levels = []
 
         try:
-            rules_file = open('res/levels.txt', 'r')
+            rules_file = pyglet.resource.file('levels.txt', 'r')
         except IOError:
             # The levels file doesn't exist!
             sys.exit('ERROR: Levels file (res/levels.txt) not found!')
