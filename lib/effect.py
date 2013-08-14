@@ -1,6 +1,8 @@
 """Holds classes related to visual and audio effects"""
 import random as rand
 
+import pyglet
+
 from lib.entities import Entity
 from lib.utils import rand_direction, WINDOW_WIDTH, WINDOW_HEIGHT, Singleton
 from lib.geometry.vector import Vector
@@ -23,6 +25,7 @@ class EffectPlayer(object):
         """Creates a new EffectPlayer"""
         self.active_animations = []
         self.animations = generate_animations()
+        self.sounds = generate_sounds()
 
     def update(self, dt):
         """Updates all active effects
@@ -53,6 +56,14 @@ class EffectPlayer(object):
         animation = self.animations[name]
         animation.play(pos)
         self.active_animations.append(animation)
+
+    def play_sound(self, name):
+        """Plays a sound
+
+        Parameters:
+            name: the name of the sound to play
+        """
+        self.sounds[name].play()
 
 
 class Animation(object):
@@ -171,3 +182,26 @@ def generate_animations():
                                                ad_gen_particles)
 
     return animations
+
+
+def generate_sounds():
+    """Generates a dictionary of all the game's sounds"""
+    sounds = {}
+
+    # EXPLOSION
+    sounds['EXPLOSION'] = pyglet.resource.media('explosion.wav',
+                                                streaming=False)
+
+    # RESPAWN
+    sounds['RESPAWN'] = pyglet.resource.media('respawn.wav',
+                                              streaming=False)
+
+    # SHOOT
+    sounds['SHOOT'] = pyglet.resource.media('shoot.wav',
+                                            streaming=False)
+
+    # TELEPORT
+    sounds['TELEPORT'] = pyglet.resource.media('teleport.wav',
+                                               streaming=False)
+
+    return sounds

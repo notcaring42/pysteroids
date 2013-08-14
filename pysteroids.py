@@ -125,6 +125,10 @@ class Pysteroids(object):
                 # Update the display to reflect the new number of lives
                 self.lives_left_label.text = ('Lives Left: ' +
                                               str(self.player.lives_left))
+
+                # Play explosion sound
+                self.effect_player.play_sound('EXPLOSION')
+
                 break
 
             # Check bullet collisions
@@ -148,6 +152,9 @@ class Pysteroids(object):
 
                     # Remove the bullet from the screen
                     self.player.bullets.remove(bullet)
+
+                    # Play explosion sound
+                    self.effect_player.play_sound('EXPLOSION')
 
     def on_draw(self):
         """Handler for the on_draw event of the game window"""

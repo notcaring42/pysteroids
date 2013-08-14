@@ -194,6 +194,7 @@ class Ship(Entity):
             self.bullets.append(Bullet(bullet_pos, self.rot,
                                        self.direction))
             self.__last_shoot = 0
+            self.effect_player.play_sound('SHOOT')
         else:
             self.__last_shoot += dt
 
@@ -203,6 +204,7 @@ class Ship(Entity):
             # Put the player way off the screen to make it look
             # like he's teleporting, and to avoid possible collisions
             self.effect_player.play_animation('PLAYER_TELEPORT', self.pos)
+            self.effect_player.play_sound('TELEPORT')
             self.pos = Vector(5000, 5000)
             schedule_once(self.__teleport, 1.5)
             self.__last_teleport = 0
