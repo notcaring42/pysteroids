@@ -322,7 +322,7 @@ class Bullet(Entity):
         expired: a boolean value representing whether the bullet's
             current amount of time in play has exceeded the lifespan
     """
-    __lifespan = 3
+    __lifespan = 1.6
 
     def __init__(self, pos, rot, direction):
         """Creates a new bullet
