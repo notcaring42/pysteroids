@@ -215,7 +215,7 @@ class Shape(object):
         # length and use it as the approximate length of the shape
         # We also give it a little padding so the transition isn't so
         # sudden
-        return 20 + max([vert.length() for vert in transVerts])
+        return 15 + max([vert.length() for vert in transVerts])
 
     def update(self, pos, rot, scale):
         self.pos = pos
