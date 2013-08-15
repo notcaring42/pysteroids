@@ -170,7 +170,7 @@ class Pysteroids(object):
         else:
             self.score_label.draw()
             self.level_label.draw()
-            self.draw_lives_left()
+            self.draw_player_status()
             if not self.player.is_dead:
                 self.player.draw()
 
@@ -193,16 +193,30 @@ class Pysteroids(object):
         # Give the player some bonus points for completing a level
         self.player.score += 50
 
-    def draw_lives_left(self):
+    def draw_player_status(self):
         """Draws an indicator showing how many lives the player
-        has left.
+        has left and whether his teleport ability is up.
 
         Lives left are drawn as ships.
         """
-        # Label the indicator
+        # Get the player's teleport status
+        teleport_status = ['Down', 'Up'][self.player.teleport_up]
+
+        # Draw the label
+        teleport_status_label = pyglet.text.Label('Tele: ' + teleport_status,
+                                                  font_name='Droid Sans Mono',
+                                                  font_size=10,
+                                                  anchor_x='center',
+                                                  anchor_y='center',
+                                                  x=100,
+                                                  y=WINDOW_HEIGHT-30)
+
+        teleport_status_label.draw()
+
+        # Label the lives indicator
         lives_left_label = pyglet.text.Label('Lives:',
                                              font_name='Droid Sans Mono',
-                                             font_size=12,
+                                             font_size=10,
                                              anchor_x='center',
                                              anchor_y='center',
                                              x=70,
@@ -210,14 +224,14 @@ class Pysteroids(object):
         lives_left_label.draw()
 
         # Some variables which we will use to draw the ships
-        scale = 0.4
+        scale = 0.25
         y = WINDOW_HEIGHT - 15
 
         # The first ship will be drawn at x, and then
         # the we will increment by dx for each ship we
         # draw to get the new x position
-        x = 120
-        dx = 25
+        x = 110
+        dx = 20
 
         # Draw one ship for each life left
         for i in range(0, self.player.lives_left):

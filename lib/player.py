@@ -20,6 +20,7 @@ class Player(object):
         ship: the player's Ship
         is_vulnerable: is the player vulnerable to being destroyed?
         is_dead: is the player dead?
+        teleport_up: is the player's teleport ability active?
         lives_left: number of lives the player has left
         game_over: is the player out of lives?
         score: the player's score
@@ -43,6 +44,10 @@ class Player(object):
         self.score = 0
         self.bullets = self.ship.bullets
         self.effect_player = EffectPlayer.instance()
+
+    @property
+    def teleport_up(self):
+        return self.ship.teleport_up
 
     def update(self, keys, dt):
         """Updates the player's ship
@@ -119,6 +124,7 @@ class Ship(Entity):
         __last_shoot: amount of time since the player last shot
         __last_teleport: amount of time since the player last
                          teleported
+        teleport_up: is the ship's teleport available?
         bullets: a list of bullets shot by the player that are in play
         effect_player: the game's EffectPlayer
     """
@@ -148,6 +154,7 @@ class Ship(Entity):
         self.bullets = []
         self.__last_shoot = self.__shoot_delay
         self.__last_teleport = self.__teleport_delay
+        self.teleport_up = True
         self.effect_player = EffectPlayer.instance()
         Entity.__init__(self, (20, 0, -30, 20, -30, -20), direction,
                         lin_speed=1.0, rot_speed=2.0, pos=pos, rot=rot,
@@ -198,9 +205,12 @@ class Ship(Entity):
         else:
             self.__last_shoot += dt
 
+        # Is the ship's teleport available?
+        if self.__last_teleport >= self.__teleport_delay:
+            self.teleport_up = True
+
         # Teleport the ship to a random location
-        if keys[key.LSHIFT] and (self.__last_teleport >=
-                                 self.__teleport_delay):
+        if keys[key.LSHIFT] and self.teleport_up:
             # Put the player way off the screen to make it look
             # like he's teleporting, and to avoid possible collisions
             self.effect_player.play_animation('PLAYER_TELEPORT', self.pos)
@@ -208,6 +218,7 @@ class Ship(Entity):
             self.pos = Vector(5000, 5000)
             schedule_once(self.__teleport, 1.5)
             self.__last_teleport = 0
+            self.teleport_up = False
         else:
             self.__last_teleport += dt
 
