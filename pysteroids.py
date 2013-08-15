@@ -278,6 +278,13 @@ class Pysteroids(object):
         self.player = Player()
         self.asteroid_manager = AsteroidManager(self.on_level_change)
 
+        # Reset the level number label
+        self.level_label.text = ('Level: ' + str(self.asteroid_manager
+                                                     .curr_level_num))
+
+        # Reset score label
+        self.score_label.text = 'Score: ' + str(self.player.score)
+
 # Initialize the game and start it
 if __name__ == '__main__':
     Pysteroids()
