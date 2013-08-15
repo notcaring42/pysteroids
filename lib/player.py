@@ -150,7 +150,7 @@ class Ship(Entity):
         self.__last_teleport = self.__teleport_delay
         self.effect_player = EffectPlayer.instance()
         Entity.__init__(self, (20, 0, -30, 20, -30, -20), direction,
-                        lin_speed=1.0, rot_speed=1.8, pos=pos, rot=rot,
+                        lin_speed=1.0, rot_speed=2.0, pos=pos, rot=rot,
                         scale=0.5)
 
     def __handle_input(self, keys, dt):
