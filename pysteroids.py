@@ -213,6 +213,17 @@ class Pysteroids(object):
 
         teleport_status_label.draw()
 
+        # Is the player invulnerable?
+        if not self.player.is_vulnerable:
+            invuln_label = pyglet.text.Label('INVULN',
+                                             font_name='Droid Sans Mono',
+                                             font_size=12,
+                                             anchor_x='center',
+                                             anchor_y='center',
+                                             x=200,
+                                             y=WINDOW_HEIGHT-15)
+            invuln_label.draw()
+
         # Label the lives indicator
         lives_left_label = pyglet.text.Label('Lives:',
                                              font_name='Droid Sans Mono',
