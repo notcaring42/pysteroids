@@ -131,7 +131,7 @@ class Ship(Entity):
 
     _max_speed = 1.5
     _shoot_delay = 0.8
-    _teleport_delay = 7.0
+    _teleport_delay = 14.0
 
     def __init__(self, pos=Vector(0, 0), rot=0.0):
         """Creates a new Ship
@@ -267,11 +267,11 @@ class Ship(Entity):
     # Setting the rotation of the ship also sets the new direction
     @property
     def rot(self):
-        return self.__rot
+        return self._rot
 
     @rot.setter
     def rot(self, value):
-        self.__rot = value
+        self._rot = value
 
         # Set new direction vector
         self._direction = Vector(cos(radians(value)), sin(radians(value)))
