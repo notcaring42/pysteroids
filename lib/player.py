@@ -77,9 +77,9 @@ class Player(object):
             return
 
         # Schedule the player for respawn in 3 seconds
-        schedule_once(self.__respawn, 3)
+        schedule_once(self._respawn, 3)
 
-    def __respawn(self, dt):
+    def _respawn(self, dt):
         """Respawns the player and his ship
 
         Parameters:
@@ -95,9 +95,9 @@ class Player(object):
         # For 2 seconds the player is not vulnerable to destruction in case
         # there is an asteroid in the middle of the screen
         self.is_vulnerable = False
-        schedule_once(self.__set_vulnerable, 2)
+        schedule_once(self._set_vulnerable, 2)
 
-    def __set_vulnerable(self, dt):
+    def _set_vulnerable(self, dt):
         """Makes the player vulnerable to destruction again
 
         Parameters:
@@ -113,25 +113,25 @@ class Ship(Entity):
     input handling.
 
     Attributes:
-        __max_speed: the maximum units per update that the ship can
+        _max_speed: the maximum units per update that the ship can
                      travel
-        __movement: the movement vector that the ship is translated by
+        _movement: the movement vector that the ship is translated by
                     each frame
-        __shoot_delay: time that must elapse before the player can
+        _shoot_delay: time that must elapse before the player can
                        shoot again
-        __teleport_delay: time that must elapse before the player can
+        _teleport_delay: time that must elapse before the player can
                           teleport again
-        __last_shoot: amount of time since the player last shot
-        __last_teleport: amount of time since the player last
+        _last_shoot: amount of time since the player last shot
+        _last_teleport: amount of time since the player last
                          teleported
         teleport_up: is the ship's teleport available?
         bullets: a list of bullets shot by the player that are in play
         effect_player: the game's EffectPlayer
     """
 
-    __max_speed = 1.5
-    __shoot_delay = 0.8
-    __teleport_delay = 7.0
+    _max_speed = 1.5
+    _shoot_delay = 0.8
+    _teleport_delay = 7.0
 
     def __init__(self, pos=Vector(0, 0), rot=0.0):
         """Creates a new Ship
@@ -148,19 +148,19 @@ class Ship(Entity):
         direction = Vector(cos(radians(rot)), sin(radians(rot)))
 
         # Initially, the ship isn't moving
-        self.__movement = Vector.zero()
+        self._movement = Vector.zero()
 
         # Initialize bullet list
         self.bullets = []
-        self.__last_shoot = self.__shoot_delay
-        self.__last_teleport = self.__teleport_delay
+        self._last_shoot = self._shoot_delay
+        self._last_teleport = self._teleport_delay
         self.teleport_up = True
         self.effect_player = EffectPlayer.instance()
         Entity.__init__(self, (20, 0, -30, 20, -30, -20), direction,
                         lin_speed=1.0, rot_speed=2.0, pos=pos, rot=rot,
                         scale=0.5)
 
-    def __handle_input(self, keys, dt):
+    def _handle_input(self, keys, dt):
         """Handles any input from the player.
 
         Args:
@@ -178,15 +178,15 @@ class Ship(Entity):
         # movement still continues in the same direction until
         # thrusters are engaged
         if keys[key.W]:
-            self.__movement += self._direction * self.lin_speed * dt
+            self._movement += self._direction * self.lin_speed * dt
 
         # Set a maximum speed
         # Normalize the movement vector and then multiply
         # by the new length to get the new speed
-        new_length = clamp(self.__movement.length(),
-                           -self.__max_speed, self.__max_speed)
-        self.__movement = self.__movement.normalize()
-        self.__movement *= new_length
+        new_length = clamp(self._movement.length(),
+                           -self._max_speed, self._max_speed)
+        self._movement = self._movement.normalize()
+        self._movement *= new_length
 
         # Rotate the ship
         if keys[key.A]:
@@ -196,17 +196,17 @@ class Ship(Entity):
 
         # Shoot a bullet, but check to make sure that the time
         # since the last shot is greater than the delay
-        if keys[key.SPACE] and (self.__last_shoot >= self.__shoot_delay):
+        if keys[key.SPACE] and (self._last_shoot >= self._shoot_delay):
             bullet_pos = self.pos + 3*self.direction
             self.bullets.append(Bullet(bullet_pos, self.rot,
                                        self.direction))
-            self.__last_shoot = 0
+            self._last_shoot = 0
             self.effect_player.play_sound('SHOOT')
         else:
-            self.__last_shoot += dt
+            self._last_shoot += dt
 
         # Is the ship's teleport available?
-        if self.__last_teleport >= self.__teleport_delay:
+        if self._last_teleport >= self._teleport_delay:
             self.teleport_up = True
 
         # Teleport the ship to a random location
@@ -216,11 +216,11 @@ class Ship(Entity):
             self.effect_player.play_animation('PLAYER_TELEPORT', self.pos)
             self.effect_player.play_sound('TELEPORT')
             self.pos = Vector(5000, 5000)
-            schedule_once(self.__teleport, 1.5)
-            self.__last_teleport = 0
+            schedule_once(self._teleport, 1.5)
+            self._last_teleport = 0
             self.teleport_up = False
         else:
-            self.__last_teleport += dt
+            self._last_teleport += dt
 
     def update(self, keys, dt):
         """Updates the ship and handles input
@@ -230,8 +230,8 @@ class Ship(Entity):
             dt: the amount of time since the last update
         """
         # Move the ship
-        self.__handle_input(keys, dt)
-        self.pos += self.__movement
+        self._handle_input(keys, dt)
+        self.pos += self._movement
 
         # Update variables
         self._shape.pos = self.pos
@@ -253,7 +253,7 @@ class Ship(Entity):
         for bullet in self.bullets:
             bullet.draw()
 
-    def __teleport(self, dt):
+    def _teleport(self, dt):
         # We give a buffer of 20 units so the ship doesn't teleport
         # to the very edge of the screen
         self.pos = Vector(randint(20, WINDOW_WIDTH-20),

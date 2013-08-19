@@ -22,9 +22,9 @@ class Shape(object):
     the vertices.
 
     Attributes:
-        __verts: a tuple defining the vertices of the shape
-        __num_verts: the number of vertices defining the shape
-        __indices: the indices defining how to draw the shape
+        _verts: a tuple defining the vertices of the shape
+        _num_verts: the number of vertices defining the shape
+        _indices: the indices defining how to draw the shape
     """
 
     def __init__(self, verts, pos, rot, scale):
@@ -37,15 +37,15 @@ class Shape(object):
             a new Shape
 
         """
-        self.__verts = tuple(verts)
-        self.__num_verts = len(verts) // 2
-        self.__indices = self.__gen_indices()
+        self._verts = tuple(verts)
+        self._num_verts = len(verts) // 2
+        self._indices = self._gen_indices()
         self.pos = pos
         self.rot = rot
         self.scale = scale
-        self.effective_length = self.__get_effective_length()
+        self.effective_length = self._get_effective_length()
 
-    def __gen_indices(self):
+    def _gen_indices(self):
         """Generates the indices for the shape
         Because the shape is closed, we want the indices to
         follow a pattern similar to [0, 1, 1, 2, 2, 0]. This
@@ -60,7 +60,7 @@ class Shape(object):
         # we hit num_verts, then end with another 0 to close
         # the shape
         indices.append(0)
-        for i in range(1, self.__num_verts):
+        for i in range(1, self._num_verts):
             indices.extend([i, i])
         indices.append(0)
 
@@ -89,8 +89,8 @@ class Shape(object):
         # First grab the transformed (world-space) vertices of each
         # shape. Then, grab the axes, which are normalized vectors
         # perpendicular to each side
-        verts1 = self.__get_transformed_verts()
-        verts2 = other.__get_transformed_verts()
+        verts1 = self._get_transformed_verts()
+        verts2 = other._get_transformed_verts()
         axes1 = generate_axes(verts1)
         axes2 = generate_axes(verts2)
 
@@ -115,7 +115,7 @@ class Shape(object):
         # and the shapes collide
         return True
 
-    def __get_vectors(self):
+    def _get_vectors(self):
         """Converts the tuple of vertex values for this shape
         into a list of vectors
 
@@ -124,13 +124,13 @@ class Shape(object):
         """
         vectors = []
 
-        # Every 2 values in the __verts list represents a vector.
+        # Every 2 values in the _verts list represents a vector.
         # This for loop turns each pair of verts into vectors
-        for i in range(0, len(self.__indices), 2):
-            vectors.append(Vector(self.__verts[i], self.__verts[i + 1]))
+        for i in range(0, len(self._indices), 2):
+            vectors.append(Vector(self._verts[i], self._verts[i + 1]))
         return vectors
 
-    def __get_model_view(self):
+    def _get_model_view(self):
         """Grabs the model view matrix based on the
         current state of the shape.
 
@@ -161,7 +161,7 @@ class Shape(object):
         mv = translate * rot * scale
         return mv
 
-    def __get_transformed_verts(self):
+    def _get_transformed_verts(self):
         """Gets the transformed vertices of the shape
 
         Returns:
@@ -169,8 +169,8 @@ class Shape(object):
         """
         # Grab the model view matrix and the non-transformed
         # vertices of the objects as vectors
-        mv = self.__get_model_view()
-        verts = self.__get_vectors()
+        mv = self._get_model_view()
+        verts = self._get_vectors()
 
         # For each vertex, convert it to a matrix and then
         # multiply by the model-view matrix
@@ -185,7 +185,7 @@ class Shape(object):
 
         return transVerts
 
-    def __get_effective_length(self):
+    def _get_effective_length(self):
         """Gets the effective length of the shape
 
         The effective length can be thought of as a rough
@@ -202,7 +202,7 @@ class Shape(object):
 
         # Now we get the properly scaled vertices and store them
         # in a list
-        verts = self.__get_vectors()
+        verts = self._get_vectors()
         transVerts = []
         for vert in verts:
             vert_m = vert.toMatrix()
@@ -233,5 +233,5 @@ class Shape(object):
 
         # Draw the lines that make up the shape
         # Use the 'v2f' format in case we're using vertices with floats
-        pyglet.graphics.draw_indexed(self.__num_verts, GL_LINES,
-                                     self.__indices, ('v2f', self.__verts))
+        pyglet.graphics.draw_indexed(self._num_verts, GL_LINES,
+                                     self._indices, ('v2f', self._verts))

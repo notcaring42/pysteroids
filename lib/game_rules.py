@@ -39,14 +39,14 @@ class AsteroidManager(object):
         """
         self.asteroids = []
         self.asteroid_count = 0
-        self.all_levels = self.__parse_levels()
+        self.all_levels = self._parse_levels()
         self.curr_level = self.all_levels.pop()
         self.curr_level_num = 1
         self.on_level_change = on_level_change
         self.next_gen_time = 0
         self.last_gen_time = 0
 
-    def __parse_levels(self):
+    def _parse_levels(self):
         """Parses the game levels from levels.txt
 
         Returns:
@@ -86,7 +86,7 @@ class AsteroidManager(object):
 
         return all_levels
 
-    def __gen_asteroid(self):
+    def _gen_asteroid(self):
         """Generates a new asteroid
 
         Returns:
@@ -127,7 +127,7 @@ class AsteroidManager(object):
         # below the maximum number of generated asteroids
         if self.last_gen_time >= self.next_gen_time and \
                 self.asteroid_count < self.curr_level.max_total:
-            self.asteroids.append(self.__gen_asteroid())
+            self.asteroids.append(self._gen_asteroid())
             self.asteroid_count += 1
 
             # Generate a new time for generation and reset the last

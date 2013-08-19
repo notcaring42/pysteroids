@@ -146,7 +146,7 @@ class Asteroid(Entity):
     asteroids break into smaller ones.
 
     Attributes:
-        __shapes: a list of tuples with two elements,
+        _shapes: a list of tuples with two elements,
                   element 0 is a tuple of vertices defining a shape
                   element 1 is the default scale of that shape
                   (the scale for a medium-sized asteroid with that
@@ -164,13 +164,13 @@ class Asteroid(Entity):
         LARGE = 2   # Breaks into 2 mediums
         HUGE = 3    # Breaks into 3 mediums
 
-    __shapes = None
+    _shapes = None
     max_lin_speed = 1.5
     max_rot_speed = 2.5
     min_lin_speed = 0.5
 
     @classmethod
-    def __get_shapes(cls):
+    def _get_shapes(cls):
         """Retrieves the asteroids shapes defined in
         asteroids.txt and populates the shapes list
         with them"""
@@ -205,7 +205,7 @@ class Asteroid(Entity):
             # the default scale
             shapes.append((tuple(verts[0:-1]), verts[-1]))
 
-        cls.__shapes = shapes
+        cls._shapes = shapes
 
     def __init__(self, size, direction, lin_speed, rot_speed,
                  shape_index=None, pos=Vector(0, 0), rot=0.0):
@@ -214,7 +214,7 @@ class Asteroid(Entity):
         Args:
             size: the size of the Asteroid, which should be a value
                   from Asteroid.Size
-            shape_index: the index of the shape to grab from __shapes.
+            shape_index: the index of the shape to grab from _shapes.
                          If None, then we'll grab a random one
             pos: the position of the asteroid
             rot: the rotation of the asteroid
@@ -224,8 +224,8 @@ class Asteroid(Entity):
         self.size = size
 
         # If we haven't grabbed the shapes from asteroids.txt, do so
-        if Asteroid.__shapes is None:
-            self.__get_shapes()
+        if Asteroid._shapes is None:
+            self._get_shapes()
 
         # Two cases:
         # 1. a shape index wasn't supplied, generate a random one
@@ -234,13 +234,13 @@ class Asteroid(Entity):
         # asteroids which resulted from the destruction of a larger
         # one)
         if shape_index is None:
-            self.shape_index = rand.randrange(0, len(Asteroid.__shapes))
+            self.shape_index = rand.randrange(0, len(Asteroid._shapes))
         else:
             self.shape_index = shape_index
 
         # Get the relevant data from the tuple
-        self.__shape = Asteroid.__shapes[self.shape_index][0]
-        self.__def_scale = Asteroid.__shapes[self.shape_index][1]
+        self._shape = Asteroid._shapes[self.shape_index][0]
+        self._def_scale = Asteroid._shapes[self.shape_index][1]
 
         # For each size, we apply a scaling factor on top of the
         # default scale to make smaller asteroids smaller and larger
@@ -260,9 +260,9 @@ class Asteroid(Entity):
         from effect import EffectPlayer
         self.effect_player = EffectPlayer.instance()
 
-        Entity.__init__(self, self.__shape, direction, lin_speed=lin_speed,
+        Entity.__init__(self, self._shape, direction, lin_speed=lin_speed,
                         rot_speed=rot_speed, pos=pos, rot=rot,
-                        scale=self.__def_scale * scale_factor)
+                        scale=self._def_scale * scale_factor)
 
     def destroy(self):
         """Destroys an asteroid and breaks it into pieces
@@ -280,17 +280,17 @@ class Asteroid(Entity):
         if self.size == Asteroid.Size.SMALL:
             return []
         elif self.size == Asteroid.Size.MEDIUM:
-            return [self.__get_random_asteroid(Asteroid.Size.SMALL),
-                    self.__get_random_asteroid(Asteroid.Size.SMALL)]
+            return [self._get_random_asteroid(Asteroid.Size.SMALL),
+                    self._get_random_asteroid(Asteroid.Size.SMALL)]
         elif self.size == Asteroid.Size.LARGE:
-            return [self.__get_random_asteroid(Asteroid.Size.MEDIUM),
-                    self.__get_random_asteroid(Asteroid.Size.MEDIUM)]
+            return [self._get_random_asteroid(Asteroid.Size.MEDIUM),
+                    self._get_random_asteroid(Asteroid.Size.MEDIUM)]
         elif self.size == Asteroid.Size.HUGE:
-            return [self.__get_random_asteroid(Asteroid.Size.MEDIUM),
-                    self.__get_random_asteroid(Asteroid.Size.MEDIUM),
-                    self.__get_random_asteroid(Asteroid.Size.MEDIUM)]
+            return [self._get_random_asteroid(Asteroid.Size.MEDIUM),
+                    self._get_random_asteroid(Asteroid.Size.MEDIUM),
+                    self._get_random_asteroid(Asteroid.Size.MEDIUM)]
 
-    def __get_random_asteroid(self, size):
+    def _get_random_asteroid(self, size):
         """Creates a random asteroid that results from the destruction
         of this asteroid
 
@@ -315,14 +315,14 @@ class Bullet(Entity):
     """A bullet that is shot by the player and can destroy an asteroid
 
     Attributes:
-        __lifespan: the amount of time, in seconds, that a bullet lasts
+        _lifespan: the amount of time, in seconds, that a bullet lasts
             before it is destroyed
-        __current_lifespan: the current amount of time the bullet has
+        _current_lifespan: the current amount of time the bullet has
             existed on the screen
         expired: a boolean value representing whether the bullet's
             current amount of time in play has exceeded the lifespan
     """
-    __lifespan = 1.6
+    _lifespan = 1.6
 
     def __init__(self, pos, rot, direction):
         """Creates a new bullet
@@ -336,7 +336,7 @@ class Bullet(Entity):
             a new Bullet
         """
         self.expired = False
-        self.__current_lifespan = 0
+        self._current_lifespan = 0
 
         Entity.__init__(self, (10, 10, 10, -10, -10, -10, -10, 10),
                         direction, pos=pos, rot=rot, lin_speed=3.0,
@@ -355,6 +355,6 @@ class Bullet(Entity):
         # Add the amount of time that has passed to the current
         # lifespan. If the current lifespan has exceeded the lifespan
         # of a bullet, flag the bullet has expired.
-        self.__current_lifespan += dt
-        if self.__current_lifespan >= self.__lifespan:
+        self._current_lifespan += dt
+        if self._current_lifespan >= self._lifespan:
             self.expired = True
