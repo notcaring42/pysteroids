@@ -3,10 +3,22 @@ from setuptools import setup, find_packages
 setup(
     name='pysteroids',
     version='1.0',
-    description='A clone of the game Asteroids implemented in Python',
+    description=('A clone of the game Asteroids, '
+                 'with some extra bells and whistles'),
     author='Max Mays',
     author_email='wmays@max-mays.com',
+    keywords='game asteroids',
+    license='MIT',
     url='https://github.com/Cheeser12/pysteroids',
     packages=find_packages(),
-    package_data={'lib': ['res/*.txt'],}
+    package_data={'pysteroids.lib':['res/*.txt', 'res/sounds/*.wav']},
+    install_requires=['numpy>=1.7.1',
+                      'pyglet>1.1.4'],
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Topic :: Games/Entertainment',
+        'Topic :: Games/Entertainment :: Arcade',
+        'Programming Language :: Python :: 2.7'
+    ]
 )

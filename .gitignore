@@ -11,3 +11,4 @@ res/sounds/*.sfxr
 
 # Setuptools stuff
 pysteroids.egg-info/
+MANIFEST.in
