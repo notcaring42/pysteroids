@@ -46,7 +46,7 @@ class Pysteroids(object):
         self.window.on_draw = self.on_draw
 
         # Set resource paths
-        pyglet.resource.path = ['res', 'res/sounds']
+        pyglet.resource.path = ['lib/res', 'lib/res/sounds']
         pyglet.resource.reindex()
 
         # Add key handler to keep track of key presses

@@ -8,3 +8,6 @@ lib/geometry/*.pyc
 
 # Ignore SFXR sound files
 res/sounds/*.sfxr
+
+# Setuptools stuff
+pysteroids.egg-info/
