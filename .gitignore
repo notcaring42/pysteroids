@@ -3,12 +3,12 @@
 
 # Ignore .pyc files
 *.pyc
-lib/*.pyc
-lib/geometry/*.pyc
 
 # Ignore SFXR sound files
-res/sounds/*.sfxr
+*.sfxr
 
 # Setuptools stuff
 pysteroids.egg-info/
 MANIFEST.in
+.MANIFEST.in.swp
+dist/
