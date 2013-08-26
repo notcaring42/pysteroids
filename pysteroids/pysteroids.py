@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Entry point for running the game"""
 # Pysteroids - An Asteroids clone in Python
 # Max Mays
