@@ -2,6 +2,8 @@
 """Entry point for running the game"""
 # Pysteroids - An Asteroids clone in Python
 # Max Mays
+import os
+
 import pyglet
 from pyglet.window import key
 from pyglet.gl import glLoadIdentity
@@ -46,13 +48,17 @@ class Pysteroids(object):
                                            height=WINDOW_HEIGHT)
         self.window.on_draw = self.on_draw
 
-        # Set resource paths
-        pyglet.resource.path = ['lib/res', 'lib/res/sounds']
-        pyglet.resource.reindex()
-
         # Add key handler to keep track of key presses
         self.keys = key.KeyStateHandler()
         self.window.push_handlers(self.keys)
+
+        # Grab an absolute directory name for the game path
+        # This helps when loading resources on an installed version
+        # of Pysteroids
+        game_path = os.path.dirname(os.path.abspath(__file__))
+        pyglet.resource.path = [game_path + '/lib/res', 
+                                game_path + '/lib/res/sounds']
+        pyglet.resource.reindex()
 
         # Grab the game's effect player
         self.effect_player = EffectPlayer.instance()
@@ -297,7 +303,12 @@ class Pysteroids(object):
         # Reset score label
         self.score_label.text = 'Score: ' + str(self.player.score)
 
+
+def main():
+  Pysteroids()
+  pyglet.app.run()
+
+
 # Initialize the game and start it
 if __name__ == '__main__':
-    Pysteroids()
-    pyglet.app.run()
+    main()
