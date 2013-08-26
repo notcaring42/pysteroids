@@ -3,9 +3,9 @@ import random as rand
 
 import pyglet
 
-from lib.entities import Entity
-from lib.utils import rand_direction, WINDOW_WIDTH, WINDOW_HEIGHT, Singleton
-from lib.geometry.vector import Vector
+from entities import Entity
+from utils import rand_direction, WINDOW_WIDTH, WINDOW_HEIGHT, Singleton
+from geometry.vector import Vector
 
 
 # EffectPlayer will be a singleton, since only one instance is needed,

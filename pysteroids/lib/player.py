@@ -8,9 +8,9 @@ from random import randint
 from pyglet.clock import schedule_once
 from pyglet.window import key
 
-from lib.utils import Vector, clamp, WINDOW_WIDTH, WINDOW_HEIGHT
-from lib.entities import Entity, Bullet
-from lib.effect import EffectPlayer
+from utils import Vector, clamp, WINDOW_WIDTH, WINDOW_HEIGHT
+from entities import Entity, Bullet
+from effect import EffectPlayer
 
 
 class Player(object):

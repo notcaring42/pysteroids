@@ -4,9 +4,9 @@ import random as rand
 
 import pyglet
 
-from lib.entities import Asteroid
-from lib.geometry.vector import Vector
-from lib.utils import weighted_choice, WINDOW_WIDTH, \
+from entities import Asteroid
+from geometry.vector import Vector
+from utils import weighted_choice, WINDOW_WIDTH, \
     WINDOW_HEIGHT, rand_direction
 
 
