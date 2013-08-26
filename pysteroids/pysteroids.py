@@ -56,7 +56,7 @@ class Pysteroids(object):
         # This helps when loading resources on an installed version
         # of Pysteroids
         game_path = os.path.dirname(os.path.abspath(__file__))
-        pyglet.resource.path = [game_path + '/lib/res', 
+        pyglet.resource.path = [game_path + '/lib/res',
                                 game_path + '/lib/res/sounds']
         pyglet.resource.reindex()
 
@@ -305,8 +305,9 @@ class Pysteroids(object):
 
 
 def main():
-  Pysteroids()
-  pyglet.app.run()
+    """Main entry point for the game"""
+    Pysteroids()
+    pyglet.app.run()
 
 
 # Initialize the game and start it
