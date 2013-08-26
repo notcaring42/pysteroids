@@ -10,6 +10,11 @@ setup(
     keywords='game asteroids',
     license='MIT',
     url='https://github.com/Cheeser12/pysteroids',
+    entry_points={
+        'console_scripts': [
+            'pysteroids = pysteroids.pysteroids:main'
+        ]
+    },
     packages=find_packages(),
     package_data={'pysteroids.lib':['res/*.txt', 'res/sounds/*.wav']},
     install_requires=['numpy>=1.7.1',
