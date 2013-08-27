@@ -12,3 +12,4 @@ pysteroids.egg-info/
 MANIFEST.in
 .MANIFEST.in.swp
 dist/
+build/
