@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'pysteroids',
-    version = '1.0',
+    version = '1.0.1',
     description = ('A clone of the game Asteroids, '
                    'with some extra bells and whistles'),
     author = 'Max Mays',
@@ -20,7 +20,7 @@ setup(
     install_requires = ['numpy>=1.7.1',
                         'pyglet>1.1.4'],
     dependency_links = ['http://pyglet.googlecode.com/files/' +
-                        'pyglet-1.2alpha1.tar.gz#egg=pyglet-1.2alpha1'],
+                        'pyglet-1.2alpha1.tar.gz#egg=pyglet-1.2'],
     classifiers = [
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
